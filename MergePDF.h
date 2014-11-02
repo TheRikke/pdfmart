@@ -2,6 +2,7 @@
 #define MERGEPDF_H
 
 #include <QObject>
+#include <QProcess>
 
 class MergePDF : public QObject
 {
@@ -12,7 +13,12 @@ public:
 signals:
 
 public slots:
+	void Merge(QString, QString, QString, bool);
 
+private:
+	QProcess MergeTool;
+	QStringList GetOrder(int numberOfPages);
+	int GetNumberOfPages(QString pdfFile);
 };
 
 #endif // MERGEPDF_H

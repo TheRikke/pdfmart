@@ -1,6 +1,11 @@
 #include "OptionDialog.h"
 
-OptionDialog::OptionDialog(QObject *parent) :
-	QObject(parent)
+OptionDialog::OptionDialog(QObject */*parent*/) :
+	Ui::Dialog()
 {
+}
+
+void OptionDialog::MergPDFs()
+{
+
 }
