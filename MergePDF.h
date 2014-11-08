@@ -10,6 +10,7 @@ class MergePDF : public QObject
 public:
 	explicit MergePDF(QObject *parent = 0);
 
+    void FindPdfTk();
 signals:
 
 public slots:

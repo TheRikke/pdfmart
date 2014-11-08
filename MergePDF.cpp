@@ -1,13 +1,41 @@
 #include "MergePDF.h"
+#include <QFile>
 #include  <QtDebug>
 
 namespace {
-   const char* MERGE_TOOL_NAME = "h:/sourcecode/pdfcat-build/pdftk.exe";
+   const char* MERGE_TOOL_NAMES[] = { "h:/sourcecode/pdfcat-build/pdftk.exe", "pdftk", "pdftk.exe", NULL };
 }
+
 MergePDF::MergePDF(QObject *parent)
+
    : QObject(parent)
-   , MergeTool() {
-   MergeTool.setProgram(MERGE_TOOL_NAME);
+   , MergeTool(this) {
+   FindPdfTk();
+}
+
+void MergePDF::FindPdfTk()
+{
+   int index = 0;
+   bool foundPdfTK = false;
+   MergeTool.setArguments(QStringList("--help"));
+   while(MERGE_TOOL_NAMES[index] != 0)
+   {
+      MergeTool.setProgram(MERGE_TOOL_NAMES[index]);
+      MergeTool.start();
+      MergeTool.waitForFinished(-1);
+      if(MergeTool.error() == QProcess::UnknownError)
+      {
+//         qDebug() << MERGE_TOOL_NAMES[index] << MergeTool.readAllStandardOutput().toPercentEncoding();
+         foundPdfTK = true;
+         break;
+      }
+      qDebug() << "pdftk executable not found" << MERGE_TOOL_NAMES[index];
+      index++;
+   }
+   if(!foundPdfTK)
+   {
+      qFatal("pdftk executable not found");
+   }
 }
 
 void MergePDF::Merge(QString inputFile1, QString inputFile2, QString outputFile, bool /*splitByPage*/) {
@@ -24,7 +52,7 @@ void MergePDF::Merge(QString inputFile1, QString inputFile2, QString outputFile,
    MergeTool.start();
    MergeTool.waitForFinished(-1);
 
-   qDebug() << "ConvertLog: " << MergeTool.state() << MergeTool.readAll().toPercentEncoding() << MergeTool.arguments().join("' '");
+//   qDebug() << "ConvertLog: " << MergeTool.state() << MergeTool.readAll().toPercentEncoding() << MergeTool.arguments().join("' '");
 }
 
 int MergePDF::GetNumberOfPages(QString pdfFile) {
@@ -38,7 +66,7 @@ int MergePDF::GetNumberOfPages(QString pdfFile) {
    MergeTool.waitForStarted(-1);
    MergeTool.waitForFinished(-1);
    QByteArray processOutput = MergeTool.readAll();
-   qDebug() << "processOutput = " << processOutput.toPercentEncoding();
+//   qDebug() << "processOutput = " << processOutput.toPercentEncoding() << MergeTool.arguments().join("' '");
    QRegExp rx("NumberOfPages:\\s+(\\d+)");
    if(rx.indexIn(processOutput) > -1)
       numberOfPages = rx.cap(1).toInt();
