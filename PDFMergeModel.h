@@ -1,5 +1,7 @@
-#ifndef PDFPAGESMODEL_H
-#define PDFPAGESMODEL_H
+#ifndef PDF_MERGE_MODEL_H
+#define PDF_MERGE_MODEL_H
+
+#include "PageList.h"
 
 #include <QAbstractTableModel>
 
@@ -7,14 +9,13 @@ namespace Poppler {
    class Document;
 }
 
-class PDFPagesModel : public QAbstractTableModel
+class PDFMergeModel : public QAbstractTableModel
 {
    Q_OBJECT
 public:
-   PDFPagesModel(QObject *parent = 0);
+   PDFMergeModel(QObject *parent = 0);
 
-   void setPDFs(QVector<Poppler::Document*> documents);
-   QVector<Poppler::Document*> GetPDFs();
+   void setPDF(QVector<Poppler::Document*> documents, PageList pageList);
 
    int rowCount(const QModelIndex &parent = QModelIndex()) const;
    int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -26,11 +27,16 @@ public:
    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
-   virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
+//   inline bool insertColumn(int acolumn, const QModelIndex &aparent);
+
+   bool dropMimeData(const QMimeData *data, Qt::DropAction action,
+                     int row, int column, const QModelIndex &parent);
+
+   virtual QStringList mimeTypes() const;
 
 private:
    QVector<Poppler::Document*> documents_;
-   int columnCount_;
-};
+   PageList pageList_;
+ };
 
-#endif // PDFPAGESMODEL_H
+#endif // PDF_MERGE_MODEL_H

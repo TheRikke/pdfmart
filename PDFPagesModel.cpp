@@ -2,6 +2,7 @@
 
 #include <poppler-qt5.h>
 #include <QImage>
+#include <QMimeData>
 
 PDFPagesModel::PDFPagesModel(QObject * parent)
    : QAbstractTableModel(parent)
@@ -10,8 +11,13 @@ PDFPagesModel::PDFPagesModel(QObject * parent)
 {
 }
 
+QVector<Poppler::Document *> PDFPagesModel::GetPDFs()
+{
+   return documents_;
+}
 
-void PDFPagesModel::setPDF(QVector<Poppler::Document*> documents)
+
+void PDFPagesModel::setPDFs(QVector<Poppler::Document*> documents)
 {
    documents_ = documents;
    columnCount_ = 0;
@@ -23,25 +29,6 @@ void PDFPagesModel::setPDF(QVector<Poppler::Document*> documents)
          columnCount_ = pageCount;
       }
    }
-
-//   Poppler::Page* pdfPage = document->page(0); // Document starts at page 0
-//   if (pdfPage == 0) {
-//   // ... error message ...
-//   return;
-//   }
-//   // Generate a QImage of the rendered page
-//   QImage image = pdfPage->renderToImage(/*72.0, 72.0, -1, -1, pdfPageImage->size().width(), pdfPageImage->size().height(), x, y, width, height*/);
-//   if (image.isNull()) {
-//   // ... error message ...
-//   return;
-//   }
-
-//   //pdfPageImage->setPixmap(QPixmap::fromImage(image.scaledToHeight(pdfPageImage->size().height())));
-//   QListWidgetItem* item = new QListWidgetItem("Page1");
-//   pageList->addItem(item);
-//   // ... use image ...
-//   // after the usage, the page must be deleted
-//   delete pdfPage;
 }
 
 int PDFPagesModel::rowCount(const QModelIndex & /* parent */) const
@@ -83,6 +70,20 @@ QVariant PDFPagesModel::headerData(int section, Qt::Orientation orientation, int
 
 Qt::ItemFlags PDFPagesModel::flags(const QModelIndex &/*index*/) const
 {
-   return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+   return Qt::ItemIsSelectable | Qt::ItemIsEnabled |Qt::ItemIsDragEnabled;
+}
+
+QMimeData *PDFPagesModel::mimeData(const QModelIndexList &indexes) const
+{
+   QByteArray encoded;
+   QDataStream stream(&encoded, QIODevice::WriteOnly);
+   for (int i = 0; i < indexes.count(); ++i) {
+      const QModelIndex& modelIndex = indexes.at(i);
+       stream << modelIndex.row() << modelIndex.column();
+   }
+
+   QMimeData *pdfMimeData = new QMimeData();
+   pdfMimeData->setData("application/x-pdfcat-pdfpages", encoded);
+   return pdfMimeData;
 }
 

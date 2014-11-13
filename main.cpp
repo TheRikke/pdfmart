@@ -23,9 +23,8 @@ int main(int argc, char *argv[])
    parser.process(app);
 
    qDebug("Setup UI");
-   QDialog* dialogMama = new QDialog();
+//   QDialog* dialogMama = new QDialog();
    OptionDialog dialog;
-   dialog.setupUi(dialogMama);
 
    QStringList args = parser.positionalArguments();
    dialog.InputList->addItems(args);
@@ -34,16 +33,20 @@ int main(int argc, char *argv[])
    dialog.MergPDFs();
 
    //	QObject::connect(dialogMama, SIGNAL(accepted()), &merger, SLOT(Merge()));
-   dialogMama->setModal(true);
-   dialogMama->setVisible(true);
-   if(dialogMama->exec() == QDialog::Accepted)
-   {
-//      qDebug("Start Merge %s, %s, %s, %d"
+   dialog.setModal(true);
+   dialog.setVisible(true);
+   if(dialog.exec() == QDialog::Accepted) {
+      QStringList fileNames;
+      int fileNamesCount = dialog.InputList->count();
+      for(int i = 0; i < fileNamesCount; i++)
+      {
+         fileNames << dialog.InputList->item(i)->text();
+      }//      qDebug("Start Merge %s, %s, %s, %d"
 //             , dialog.inputFile1->text().toStdString().c_str()
 //             , dialog.inputFile2->text().toStdString().c_str()
 //             , dialog.outputFile->text().toStdString().c_str()
 //             , dialog.splitPerPage->isChecked());
-      merger.Merge(dialog.InputList->item(0)->text(), dialog.InputList->item(1)->text(), dialog.outputFile->text(), false);
+      merger.Merge(fileNames, dialog.GetPageList(), dialog.outputFile->text());
    }
    return 0; //app.exec();
 }

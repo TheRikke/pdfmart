@@ -55,6 +55,31 @@ void MergePDF::Merge(QString inputFile1, QString inputFile2, QString outputFile,
 //   qDebug() << "ConvertLog: " << MergeTool.state() << MergeTool.readAll().toPercentEncoding() << MergeTool.arguments().join("' '");
 }
 
+void MergePDF::Merge(const QStringList& inputFiles, const PageList& pageList, const QString& outputFile) {
+   QStringList arguments;
+
+   char fileAlias('A');
+   foreach (const QString& file, inputFiles) {
+      arguments.append(QString("%1=%2").arg(fileAlias).arg(file));
+      ++fileAlias;
+   }
+   arguments.append("cat");
+
+   fileAlias = 'A';
+   foreach (const PageEntry& pageEntry, pageList) {
+      arguments.append(QString("%1%2").arg((char)(fileAlias + pageEntry.first)).arg(pageEntry.second+1));
+   }
+   arguments.append("output");
+   arguments.append(outputFile);
+   arguments.append("verbose");
+   arguments.append("dont_ask");
+   MergeTool.setArguments(arguments);
+   MergeTool.start();
+   MergeTool.waitForFinished(-1);
+   qDebug() << "ConvertLog: " << MergeTool.state() << QString(MergeTool.readAll()).replace('\r',"") << MergeTool.arguments().join("' '");
+}
+
+
 int MergePDF::GetNumberOfPages(QString pdfFile) {
    qDebug("Start GetNumberOfPages");
    int numberOfPages = 0;
