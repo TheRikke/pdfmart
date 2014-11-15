@@ -59,7 +59,6 @@ void OptionDialog::LoadPDFs()
    docs.setValue<PopplerDocumentList>(documents);
    pdfPages->model()->setProperty("SourceDocuments", docs);
    mergedView->model()->setProperty("SourceDocuments", docs);
-//   pdfPages->setModel(pagesModel);
    pdfPages->resizeRowsToContents();
    pdfPages->resizeColumnsToContents();
 }
@@ -161,4 +160,12 @@ void OptionDialog::AddInputFiles(const QStringList &fileNames)
    PopplerDocumentList oldDocuments = docs.value<PopplerDocumentList>();
    LoadPDFs();
    qDeleteAll(oldDocuments);
+}
+
+void OptionDialog::on_removeInput_clicked()
+{
+   QList<QListWidgetItem *> selectedFiles = InputList->selectedItems();
+   foreach(QListWidgetItem *item, selectedFiles) {
+      delete item;
+   }
 }

@@ -36,6 +36,8 @@ private slots:
 
    void on_addInput_clicked();
 
+   void on_removeInput_clicked();
+
 private:
    void LoadPDFs();
 };

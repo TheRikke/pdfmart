@@ -35,11 +35,22 @@
       <number>0</number>
      </property>
      <item row="2" column="0">
-      <widget class="QPushButton" name="addInput">
-       <property name="text">
-        <string>Add</string>
-       </property>
-      </widget>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QPushButton" name="addInput">
+         <property name="text">
+          <string>Add</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="removeInput">
+         <property name="text">
+          <string>Del</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item row="2" column="1">
       <widget class="QListWidget" name="InputList">
