@@ -15,7 +15,7 @@ INCLUDE_DIRECTORIES(${POPPLER_INCLUDE_DIRS})
 
 QT5_WRAP_UI(UIS_HDRS
     dialog.ui )
-add_definitions(-Wall)
+add_definitions(-Wall -Wextra)
 aux_source_directory(. SRC_LIST)
 add_executable(${PROJECT_NAME} WIN32 ${SRC_LIST} ${UIS_HDRS} )
 

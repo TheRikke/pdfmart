@@ -13,9 +13,6 @@ class PDFPagesModel : public QAbstractTableModel
 public:
    PDFPagesModel(QObject *parent = 0);
 
-   void setPDFs(QVector<Poppler::Document*> documents);
-   QVector<Poppler::Document*> GetPDFs();
-
    int rowCount(const QModelIndex &parent = QModelIndex()) const;
    int columnCount(const QModelIndex &parent = QModelIndex()) const;
    virtual QModelIndex index(int row, int column,
@@ -28,6 +25,8 @@ public:
    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
    virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
 
+   void setProperty(const char *name, const QVariant &value);
+   bool event(QEvent *event);
 private:
    QVector<Poppler::Document*> documents_;
    int columnCount_;

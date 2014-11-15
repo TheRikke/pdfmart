@@ -16,13 +16,6 @@ PDFMergeModel::PDFMergeModel(QObject * parent)
 {
 }
 
-
-void PDFMergeModel::setPDF(QVector<Poppler::Document*> documents, PageList pageList)
-{
-   documents_ = documents;
-   pageList_ = pageList;
-}
-
 int PDFMergeModel::rowCount(const QModelIndex & /* parent */) const
 {
    return 1;
@@ -37,7 +30,7 @@ QModelIndex PDFMergeModel::index(int row, int column, const QModelIndex &parent)
 {
    qDebug() << "createIndex for" << row << column << parent;
 //   return createIndex(pageList_.at(column).first, pageList_.at(column).second);
-   return createIndex(row, column, (void*)&pageList_.at(column));
+   return createIndex(row, column);
 }
 
 QModelIndex PDFMergeModel::parent(const QModelIndex &child) const
@@ -51,9 +44,6 @@ QVariant PDFMergeModel::data(const QModelIndex &index, int role) const
    QVariant result;
    switch(role)
    {
-   case Qt::DisplayRole:
-      result = QString::number(index.column());
-      break;
    case Qt::UserRole:
       QSize pagePos(pageList_.at(index.column()).first, pageList_.at(index.column()).second);
       result.setValue(pagePos);
@@ -62,7 +52,30 @@ QVariant PDFMergeModel::data(const QModelIndex &index, int role) const
    return result;
 }
 
-QVariant PDFMergeModel::headerData(int section, Qt::Orientation orientation, int role) const
+bool PDFMergeModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+   bool result = false;
+   switch(role)
+   {
+   case Qt::UserRole:
+      if(index.isValid() && value.isValid())
+      {
+         QSize position(value.toSize());
+         if(pageList_.count() <= index.column())
+         {
+            pageList_.resize(index.column() + 1);
+            emit layoutChanged();
+         }
+         pageList_[index.column()] = PageEntry(position.width(), position.height());
+         result = true;
+         emit dataChanged(index, index);
+      }
+      break;
+   }
+   return result;
+}
+
+QVariant PDFMergeModel::headerData(int /*section*/, Qt::Orientation /*orientation*/, int /*role*/) const
 {
    return QVariant();
 }
@@ -79,7 +92,7 @@ Qt::ItemFlags PDFMergeModel::flags(const QModelIndex &/*index*/) const
 //   return true;
 //}
 
-bool PDFMergeModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
+bool PDFMergeModel::dropMimeData(const QMimeData *data, Qt::DropAction /*action*/, int row, int column, const QModelIndex &parent)
 {
    QStringList formats = data->formats();
    QByteArray encodedData = data->data(formats[0]);

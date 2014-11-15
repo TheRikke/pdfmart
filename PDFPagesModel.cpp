@@ -3,32 +3,15 @@
 #include <poppler-qt5.h>
 #include <QImage>
 #include <QMimeData>
+#include <QEvent>
+
+Q_DECLARE_METATYPE(Poppler::Document*)
 
 PDFPagesModel::PDFPagesModel(QObject * parent)
    : QAbstractTableModel(parent)
    , documents_()
    , columnCount_(0)
 {
-}
-
-QVector<Poppler::Document *> PDFPagesModel::GetPDFs()
-{
-   return documents_;
-}
-
-
-void PDFPagesModel::setPDFs(QVector<Poppler::Document*> documents)
-{
-   documents_ = documents;
-   columnCount_ = 0;
-   foreach(Poppler::Document *document, documents_)
-   {
-      const int pageCount = document->numPages();
-      if (pageCount > columnCount_)
-      {
-         columnCount_ = pageCount;
-      }
-   }
 }
 
 int PDFPagesModel::rowCount(const QModelIndex & /* parent */) const
@@ -41,12 +24,12 @@ int PDFPagesModel::columnCount(const QModelIndex & /* parent */) const
    return columnCount_;
 }
 
-QModelIndex PDFPagesModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex PDFPagesModel::index(int row, int column, const QModelIndex &/*parent*/) const
 {
    return createIndex(row, column);
 }
 
-QModelIndex PDFPagesModel::parent(const QModelIndex &child) const
+QModelIndex PDFPagesModel::parent(const QModelIndex &/*child*/) const
 {
    return QModelIndex();
 }
@@ -63,7 +46,7 @@ QVariant PDFPagesModel::data(const QModelIndex &index, int role) const
    return result;
 }
 
-QVariant PDFPagesModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant PDFPagesModel::headerData(int /*section*/, Qt::Orientation /*orientation*/, int /*role*/) const
 {
    return QVariant();
 }
@@ -87,3 +70,24 @@ QMimeData *PDFPagesModel::mimeData(const QModelIndexList &indexes) const
    return pdfMimeData;
 }
 
+bool PDFPagesModel::event(QEvent *qEvent)
+{
+   if (qEvent->type() == QEvent::DynamicPropertyChange)
+   {
+//      QDynamicPropertyChangeEvent* propertyEvent = static_cast<QDynamicPropertyChangeEvent*>(qEvent);
+      documents_ = property("SourceDocuments").value< QVector<Poppler::Document*> >();
+      columnCount_ = 0;
+      foreach(Poppler::Document *document, documents_)
+      {
+         const int pageCount = document->numPages();
+         if (pageCount > columnCount_)
+         {
+            columnCount_ = pageCount;
+         }
+      }
+      emit layoutChanged();
+
+      return true;
+   }
+   return false;
+}

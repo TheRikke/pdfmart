@@ -27,10 +27,9 @@ int main(int argc, char *argv[])
    OptionDialog dialog;
 
    QStringList args = parser.positionalArguments();
-   dialog.InputList->addItems(args);
+   dialog.AddInputFiles(args);
    dialog.outputFile->setText(parser.value(outputFileName));
 
-   dialog.MergPDFs();
 
    //	QObject::connect(dialogMama, SIGNAL(accepted()), &merger, SLOT(Merge()));
    dialog.setModal(true);

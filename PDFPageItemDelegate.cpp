@@ -5,9 +5,10 @@
 #include <poppler-qt5.h>
 #include <QPainter>
 
-PDFPageItemDelegate::PDFPageItemDelegate(QObject *parent, QVector<Poppler::Document *> documents)
+Q_DECLARE_METATYPE(Poppler::Document*)
+
+PDFPageItemDelegate::PDFPageItemDelegate(QObject *parent)
    : QAbstractItemDelegate(parent)
-   , documents_(documents)
 {
 }
 
@@ -15,13 +16,17 @@ void PDFPageItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
 {
    int documentNumber = index.row();
    int pageNumber = index.column();
-   if(index.internalPointer())
+   const QAbstractItemModel *itemModel = index.model();
+   QVariant data = itemModel->data(index, Qt::UserRole);
+   if(data.isValid())
    {
-      PageEntry *pageEntry = static_cast<PageEntry*>(index.internalPointer());
-      documentNumber = pageEntry->first;
-      pageNumber = pageEntry->second;
+      QSize position(data.toSize());
+      documentNumber = position.height();
+      pageNumber = position.width();
    }
-   Poppler::Document *document = documents_.at(documentNumber);
+   QVector<Poppler::Document*> documents = itemModel->property("SourceDocuments").value< QVector<Poppler::Document*> >();
+
+   Poppler::Document *document = documents.at(documentNumber);
    if(pageNumber < document->numPages()) {
       Poppler::Page *page = document->page(pageNumber);
       QImage newPage = page->renderToImage();
@@ -30,8 +35,13 @@ void PDFPageItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
    }
 }
 
-QSize PDFPageItemDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+QSize PDFPageItemDelegate::sizeHint(const QStyleOptionViewItem &/*option*/, const QModelIndex &index) const
 {
-   int row = index.isValid() ? index.row() : 0;
-   return QSize(documents_.at(row)->page(0)->pageSize());
+   QSize result;
+   if(index.isValid())
+   {
+      QVector<Poppler::Document*> documents = index.model()->property("SourceDocuments").value< QVector<Poppler::Document*> >();
+      result = documents.at(index.row())->page(0)->pageSize();
+   }
+   return result;
 }

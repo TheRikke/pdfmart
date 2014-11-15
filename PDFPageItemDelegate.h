@@ -10,7 +10,7 @@ namespace Poppler {
 class PDFPageItemDelegate : public QAbstractItemDelegate
 {
 public:
-   PDFPageItemDelegate(QObject *parent, QVector<Poppler::Document*> documents);
+   PDFPageItemDelegate(QObject *parent);
 
    void paint(QPainter *painter, const QStyleOptionViewItem &option,
               const QModelIndex &index) const;
@@ -18,7 +18,6 @@ public:
    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
 private:
-   QVector<Poppler::Document*> documents_;
 };
 
 #endif // PDFPAGEITEMDELEGATE_H

@@ -2,18 +2,27 @@
 #include <poppler-qt5.h>
 #include <QObject>
 #include <QListWidgetItem>
+#include <QFileDialog>
 #include "PDFPagesModel.h"
 #include "PDFMergeModel.h"
 #include "PDFPageItemDelegate.h"
 #include <QDebug>
 
-OptionDialog::OptionDialog(QObject *parent) :
-	Ui::Dialog()
+Q_DECLARE_METATYPE(Poppler::Document*)
+
+OptionDialog::OptionDialog(QObject */*parent*/) :
+   Ui::Dialog()
 {
    setupUi(this);
    connect (pdfPages->horizontalHeader(), SIGNAL(sectionResized(int,int,int)), this, SLOT(OnColumnResized(int, int, int)));
    connect (mergedView->horizontalHeader(), SIGNAL(sectionResized(int,int,int)), this, SLOT(OnMergedViewColumnResized(int, int, int)));
    connect (mergedView->horizontalHeader(), SIGNAL(sectionCountChanged(int,int)), SLOT(OnColumnCountChanged(int,int)));
+
+   mergedView->setItemDelegate(new PDFPageItemDelegate(this));
+   mergedView->setModel(new PDFMergeModel(this));
+
+   pdfPages->setItemDelegate(new PDFPageItemDelegate(this));
+   pdfPages->setModel(new PDFPagesModel(this));
 }
 
 PageList OptionDialog::GetPageList() const
@@ -29,7 +38,7 @@ PageList OptionDialog::GetPageList() const
    return resultList;
 }
 
-void OptionDialog::MergPDFs()
+void OptionDialog::LoadPDFs()
 {
    QVector<Poppler::Document*> documents;
 
@@ -45,15 +54,17 @@ void OptionDialog::MergPDFs()
          documents.append(document);
       }
    }
-   PDFPagesModel* pagesModel = new PDFPagesModel(this);
-   pagesModel->setPDFs(documents);
-   pdfPages->setItemDelegate(new PDFPageItemDelegate(this, documents));
-   pdfPages->setModel(pagesModel);
+
+   QVariant docs;
+   docs.setValue<PopplerDocumentList>(documents);
+   pdfPages->model()->setProperty("SourceDocuments", docs);
+   mergedView->model()->setProperty("SourceDocuments", docs);
+//   pdfPages->setModel(pagesModel);
    pdfPages->resizeRowsToContents();
    pdfPages->resizeColumnsToContents();
 }
 
-void OptionDialog::OnColumnResized(int /*logicalIndex*/, int oldSize, int newSize)
+void OptionDialog::OnColumnResized(int /*logicalIndex*/, int /*oldSize*/, int newSize)
 {
    const int columnCount = pdfPages->model()->columnCount();
    const int rowCount = pdfPages->model()->rowCount();
@@ -72,7 +83,7 @@ void OptionDialog::OnColumnResized(int /*logicalIndex*/, int oldSize, int newSiz
    }
 }
 
-void OptionDialog::OnMergedViewColumnResized(int /*logicalIndex*/, int oldSize, int newSize)
+void OptionDialog::OnMergedViewColumnResized(int /*logicalIndex*/, int /*oldSize*/, int newSize)
 {
    const int columnCount = mergedView->model()->columnCount();
    const int rowCount = mergedView->model()->rowCount();
@@ -98,8 +109,6 @@ void OptionDialog::on_actionEineAktion_triggered()
 
 void OptionDialog::on_duplexButton_clicked()
 {
-//   const int documentCount = pdfPages->model()->rowCount();
-   PDFPagesModel* pagesModel = qobject_cast<PDFPagesModel*>(pdfPages->model());
    const int maxPageCount = pdfPages->model()->columnCount();
 
    PageList pageList;
@@ -108,14 +117,19 @@ void OptionDialog::on_duplexButton_clicked()
       pageList.append(PageEntry(1, (maxPageCount - 1) - currentPage));
    }
 
-   PDFMergeModel* mergeModel = new PDFMergeModel(this);
-   mergeModel->setPDF(pagesModel->GetPDFs(), pageList);
-   mergedView->setItemDelegate(new PDFPageItemDelegate(this, pagesModel->GetPDFs()));
-   mergedView->setModel(mergeModel);
+   QAbstractItemModel *model = mergedView->model();
+   model->removeColumns(0, model->columnCount());
+   model->insertColumns(0, pageList.count());
+
+   int column = 0;
+   foreach(PageEntry entry, pageList)
+   {
+      QSize pagePos(entry.first, entry.second);
+      model->setData(model->index(0, column), pagePos, Qt::UserRole);
+      column++;
+   }
    mergedView->resizeRowsToContents();
    mergedView->resizeColumnsToContents();
-
-   //Poppler::Document* document = Poppler::Document::loadFromData()
 }
 
 void OptionDialog::OnColumnCountChanged(int oldSize, int newSize)
@@ -124,4 +138,27 @@ void OptionDialog::OnColumnCountChanged(int oldSize, int newSize)
       int columnSize = mergedView->columnWidth(0);
       OnMergedViewColumnResized(0, columnSize, columnSize);
    }
+}
+
+void OptionDialog::on_addInput_clicked()
+{
+   QFileDialog fileDialog(this, "Choose PDF files");
+   fileDialog.setDefaultSuffix(".pdf");
+   fileDialog.setNameFilter("PDFs (*.pdf)");
+   fileDialog.setFileMode(QFileDialog::ExistingFiles);
+   QStringList fileNames;
+   if (fileDialog.exec())
+      fileNames = fileDialog.selectedFiles();
+   AddInputFiles(fileNames);
+}
+
+void OptionDialog::AddInputFiles(const QStringList &fileNames)
+{
+   InputList->addItems(fileNames);
+   const QAbstractItemModel* model = mergedView->model();
+
+   QVariant docs = model->property("SourceDocuments");
+   PopplerDocumentList oldDocuments = docs.value<PopplerDocumentList>();
+   LoadPDFs();
+   qDeleteAll(oldDocuments);
 }
