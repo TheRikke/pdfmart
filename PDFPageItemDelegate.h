@@ -18,6 +18,8 @@ public:
    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
 private:
+   typedef QPair<Poppler::Document*, int> ImageKey;
+
 };
 
 #endif // PDFPAGEITEMDELEGATE_H

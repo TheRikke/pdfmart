@@ -26,10 +26,8 @@ int PDFMergeModel::columnCount(const QModelIndex & /* parent */) const
    return pageList_.count();
 }
 
-QModelIndex PDFMergeModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex PDFMergeModel::index(int row, int column, const QModelIndex &/*parent*/) const
 {
-   qDebug() << "createIndex for" << row << column << parent;
-//   return createIndex(pageList_.at(column).first, pageList_.at(column).second);
    return createIndex(row, column);
 }
 
@@ -85,13 +83,6 @@ Qt::ItemFlags PDFMergeModel::flags(const QModelIndex &/*index*/) const
    return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDropEnabled | Qt::ItemIsEditable;
 }
 
-//bool PDFMergeModel::insertColumn(int acolumn, const QModelIndex &aparent)
-//{
-////   beginInsertColumns(aparent, acolumn, acolumn);
-////   endInsertColumns();
-//   return true;
-//}
-
 bool PDFMergeModel::dropMimeData(const QMimeData *data, Qt::DropAction /*action*/, int row, int column, const QModelIndex &parent)
 {
    QStringList formats = data->formats();
@@ -104,7 +95,6 @@ bool PDFMergeModel::dropMimeData(const QMimeData *data, Qt::DropAction /*action*
       stream >> origin_row >> origin_column;
       pageList.append(PageEntry(origin_row, origin_column));
    }
-
 
    int beginColumn = -1;
 
@@ -121,7 +111,6 @@ bool PDFMergeModel::dropMimeData(const QMimeData *data, Qt::DropAction /*action*
       pageList_.insert(beginColumn++, entry);
    }
    emit layoutChanged();
-//   qDebug() << "row: " << row << " column:" << column << "origin" << origin_row << origin_column << parent;
    return true;
 }
 
