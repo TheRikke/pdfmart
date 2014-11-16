@@ -78,6 +78,14 @@ QVariant PDFMergeModel::headerData(int /*section*/, Qt::Orientation /*orientatio
    return QVariant();
 }
 
+bool PDFMergeModel::removeColumns(int column, int count, const QModelIndex &parent)
+{
+   beginRemoveColumns(parent, column, column + count - 1);
+   pageList_.remove(column, count);
+   endRemoveColumns();
+   return true;
+}
+
 Qt::ItemFlags PDFMergeModel::flags(const QModelIndex &/*index*/) const
 {
    return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDropEnabled | Qt::ItemIsEditable;

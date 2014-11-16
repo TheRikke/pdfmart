@@ -7,6 +7,7 @@
 #include "PDFMergeModel.h"
 #include "PDFPageItemDelegate.h"
 #include <QDebug>
+#include <QKeyEvent>
 
 Q_DECLARE_METATYPE(Poppler::Document*)
 
@@ -14,6 +15,8 @@ OptionDialog::OptionDialog(QObject */*parent*/) :
    Ui::Dialog()
 {
    setupUi(this);
+   mergedView->installEventFilter(this);
+
    connect (pdfPages->horizontalHeader(), SIGNAL(sectionResized(int,int,int)), this, SLOT(OnColumnResized(int, int, int)));
    connect (mergedView->horizontalHeader(), SIGNAL(sectionResized(int,int,int)), this, SLOT(OnMergedViewColumnResized(int, int, int)));
    connect (mergedView->horizontalHeader(), SIGNAL(sectionCountChanged(int,int)), SLOT(OnColumnCountChanged(int,int)));
@@ -168,4 +171,32 @@ void OptionDialog::on_removeInput_clicked()
    foreach(QListWidgetItem *item, selectedFiles) {
       delete item;
    }
+}
+
+bool OptionDialog::eventFilter(QObject* object, QEvent* event)
+{
+   if (event->type()==QEvent::KeyPress)
+   {
+      QKeyEvent* pKeyEvent=static_cast<QKeyEvent*>(event);
+      if (pKeyEvent->key() == Qt::Key_Delete)
+      {
+         if (mergedView->hasFocus())
+         {
+            QModelIndexList selectedPages = mergedView->selectionModel()->selectedIndexes();
+            QAbstractItemModel* model = mergedView->model();
+            foreach(QModelIndex index, selectedPages) {
+               model->removeColumn(index.column());
+            }
+
+            qDebug() << "Event filter: Focus yes, Delete key pressed";
+         }
+         else
+         {
+            qDebug() << "Event filter: Focus NO, Delete key pressed";
+         }
+         return true;
+      }
+      qDebug() << "Event filter: other key pressed";
+   }
+   return QWidget::eventFilter(object, event);
 }

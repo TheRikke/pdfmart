@@ -21,6 +21,7 @@ public:
    void AddInputFiles(const QStringList &fileNames);
 
    typedef QVector<Poppler::Document*> PopplerDocumentList;
+   bool eventFilter(QObject *object, QEvent *event);
 signals:
 
 public slots:
