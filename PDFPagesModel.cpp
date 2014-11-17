@@ -46,9 +46,20 @@ QVariant PDFPagesModel::data(const QModelIndex &index, int role) const
    return result;
 }
 
-QVariant PDFPagesModel::headerData(int /*section*/, Qt::Orientation /*orientation*/, int /*role*/) const
+QVariant PDFPagesModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-   return QVariant();
+   QVariant result;
+   switch(role)
+   {
+   case Qt::DisplayRole:
+      if(orientation == Qt::Horizontal) {
+         result.setValue(QString("Page %1").arg(section + 1));
+      } else {
+         result.setValue(QString("%1").arg(section + 1));
+      }
+   }
+
+   return result;
 }
 
 Qt::ItemFlags PDFPagesModel::flags(const QModelIndex &/*index*/) const
@@ -85,6 +96,11 @@ bool PDFPagesModel::event(QEvent *qEvent)
             columnCount_ = pageCount;
          }
       }
+
+//      for(int column = 0; column < columnCount_; ++column) {
+//         setHeaderData(column, Qt::Vertical, tr("Page"));
+//         setHeaderData(column, Qt::Horizontal, tr("Page"));
+//      }
       emit layoutChanged();
 
       return true;

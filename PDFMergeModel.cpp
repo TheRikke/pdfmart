@@ -73,9 +73,20 @@ bool PDFMergeModel::setData(const QModelIndex &index, const QVariant &value, int
    return result;
 }
 
-QVariant PDFMergeModel::headerData(int /*section*/, Qt::Orientation /*orientation*/, int /*role*/) const
+QVariant PDFMergeModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-   return QVariant();
+   QVariant result;
+   switch(role)
+   {
+   case Qt::DisplayRole:
+      if(orientation == Qt::Horizontal) {
+         result.setValue(QString("Page %1").arg(section + 1));
+      } else {
+         result.setValue(QString("%1").arg(section + 1));
+      }
+   }
+
+   return result;
 }
 
 bool PDFMergeModel::removeColumns(int column, int count, const QModelIndex &parent)
@@ -127,6 +138,3 @@ QStringList PDFMergeModel::mimeTypes() const
    QStringList types(MIME_TYPE);
    return types;
 }
-
-
-
