@@ -10,35 +10,28 @@ Q_DECLARE_METATYPE(Poppler::Document*)
 PDFPagesModel::PDFPagesModel(QObject * parent)
    : QAbstractTableModel(parent)
    , documents_()
-   , columnCount_(0)
-{
+   , columnCount_(0) {
 }
 
-int PDFPagesModel::rowCount(const QModelIndex & /* parent */) const
-{
+int PDFPagesModel::rowCount(const QModelIndex & /* parent */) const {
    return documents_.count();
 }
 
-int PDFPagesModel::columnCount(const QModelIndex & /* parent */) const
-{
+int PDFPagesModel::columnCount(const QModelIndex & /* parent */) const {
    return columnCount_;
 }
 
-QModelIndex PDFPagesModel::index(int row, int column, const QModelIndex &/*parent*/) const
-{
+QModelIndex PDFPagesModel::index(int row, int column, const QModelIndex &/*parent*/) const {
    return createIndex(row, column);
 }
 
-QModelIndex PDFPagesModel::parent(const QModelIndex &/*child*/) const
-{
+QModelIndex PDFPagesModel::parent(const QModelIndex &/*child*/) const {
    return QModelIndex();
 }
 
-QVariant PDFPagesModel::data(const QModelIndex &index, int role) const
-{
+QVariant PDFPagesModel::data(const QModelIndex &index, int role) const {
    QVariant result;
-   switch(role)
-   {
+   switch(role) {
    case Qt::DisplayRole:
       result = QString::number(index.column());
       break;
@@ -46,11 +39,9 @@ QVariant PDFPagesModel::data(const QModelIndex &index, int role) const
    return result;
 }
 
-QVariant PDFPagesModel::headerData(int section, Qt::Orientation orientation, int role) const
-{
+QVariant PDFPagesModel::headerData(int section, Qt::Orientation orientation, int role) const {
    QVariant result;
-   switch(role)
-   {
+   switch(role) {
    case Qt::DisplayRole:
       if(orientation == Qt::Horizontal) {
          result.setValue(QString("Page %1").arg(section + 1));
@@ -62,18 +53,16 @@ QVariant PDFPagesModel::headerData(int section, Qt::Orientation orientation, int
    return result;
 }
 
-Qt::ItemFlags PDFPagesModel::flags(const QModelIndex &/*index*/) const
-{
+Qt::ItemFlags PDFPagesModel::flags(const QModelIndex &/*index*/) const {
    return Qt::ItemIsSelectable | Qt::ItemIsEnabled |Qt::ItemIsDragEnabled;
 }
 
-QMimeData *PDFPagesModel::mimeData(const QModelIndexList &indexes) const
-{
+QMimeData *PDFPagesModel::mimeData(const QModelIndexList &indexes) const {
    QByteArray encoded;
    QDataStream stream(&encoded, QIODevice::WriteOnly);
    for (int i = 0; i < indexes.count(); ++i) {
       const QModelIndex& modelIndex = indexes.at(i);
-       stream << modelIndex.row() << modelIndex.column();
+      stream << modelIndex.row() << modelIndex.column();
    }
 
    QMimeData *pdfMimeData = new QMimeData();
@@ -81,18 +70,14 @@ QMimeData *PDFPagesModel::mimeData(const QModelIndexList &indexes) const
    return pdfMimeData;
 }
 
-bool PDFPagesModel::event(QEvent *qEvent)
-{
-   if (qEvent->type() == QEvent::DynamicPropertyChange)
-   {
+bool PDFPagesModel::event(QEvent *qEvent) {
+   if (qEvent->type() == QEvent::DynamicPropertyChange) {
 //      QDynamicPropertyChangeEvent* propertyEvent = static_cast<QDynamicPropertyChangeEvent*>(qEvent);
       documents_ = property("SourceDocuments").value< QVector<Poppler::Document*> >();
       columnCount_ = 0;
-      foreach(Poppler::Document *document, documents_)
-      {
+      foreach(Poppler::Document *document, documents_) {
          const int pageCount = document->numPages();
-         if (pageCount > columnCount_)
-         {
+         if (pageCount > columnCount_) {
             columnCount_ = pageCount;
          }
       }

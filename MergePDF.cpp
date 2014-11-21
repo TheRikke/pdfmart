@@ -3,7 +3,7 @@
 #include  <QtDebug>
 
 namespace {
-   const char* MERGE_TOOL_NAMES[] = { "h:/sourcecode/pdfcat-build/pdftk.exe", "pdftk", "pdftk.exe", NULL };
+const char* MERGE_TOOL_NAMES[] = { "h:/sourcecode/pdfcat-build/pdftk.exe", "pdftk", "pdftk.exe", NULL };
 }
 
 MergePDF::MergePDF(QObject *parent)
@@ -13,18 +13,15 @@ MergePDF::MergePDF(QObject *parent)
    FindPdfTk();
 }
 
-void MergePDF::FindPdfTk()
-{
+void MergePDF::FindPdfTk() {
    int index = 0;
    bool foundPdfTK = false;
    MergeTool.setArguments(QStringList("--help"));
-   while(MERGE_TOOL_NAMES[index] != 0)
-   {
+   while(MERGE_TOOL_NAMES[index] != 0) {
       MergeTool.setProgram(MERGE_TOOL_NAMES[index]);
       MergeTool.start();
       MergeTool.waitForFinished(-1);
-      if(MergeTool.error() == QProcess::UnknownError)
-      {
+      if(MergeTool.error() == QProcess::UnknownError) {
 //         qDebug() << MERGE_TOOL_NAMES[index] << MergeTool.readAllStandardOutput().toPercentEncoding();
          foundPdfTK = true;
          break;
@@ -32,8 +29,7 @@ void MergePDF::FindPdfTk()
       qDebug() << "pdftk executable not found" << MERGE_TOOL_NAMES[index];
       index++;
    }
-   if(!foundPdfTK)
-   {
+   if(!foundPdfTK) {
       qFatal("pdftk executable not found");
    }
 }

@@ -6,20 +6,19 @@
 #include <QProcess>
 
 
-class MergePDF : public QObject
-{
+class MergePDF : public QObject {
    Q_OBJECT
-public:
+ public:
    explicit MergePDF(QObject *parent = 0);
 
    void FindPdfTk();
-signals:
+ signals:
 
-public slots:
+ public slots:
    void Merge(QString, QString, QString, bool);
    void Merge(const QStringList& inputFiles, const PageList& pageList, const QString& outputFile);
 
-private:
+ private:
    QProcess MergeTool;
    QStringList GetOrder(int numberOfPages);
    int GetNumberOfPages(QString pdfFile);

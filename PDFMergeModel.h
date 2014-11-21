@@ -6,13 +6,12 @@
 #include <QAbstractTableModel>
 
 namespace Poppler {
-   class Document;
+class Document;
 }
 
-class PDFMergeModel : public QAbstractTableModel
-{
+class PDFMergeModel : public QAbstractTableModel {
    Q_OBJECT
-public:
+ public:
    PDFMergeModel(QObject *parent = 0);
 
    int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -33,9 +32,9 @@ public:
 
    virtual QStringList mimeTypes() const;
 
-private:
+ private:
    QVector<Poppler::Document*> documents_;
    PageList pageList_;
- };
+};
 
 #endif // PDF_MERGE_MODEL_H

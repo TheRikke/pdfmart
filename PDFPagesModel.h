@@ -4,13 +4,12 @@
 #include <QAbstractTableModel>
 
 namespace Poppler {
-   class Document;
+class Document;
 }
 
-class PDFPagesModel : public QAbstractTableModel
-{
+class PDFPagesModel : public QAbstractTableModel {
    Q_OBJECT
-public:
+ public:
    PDFPagesModel(QObject *parent = 0);
 
    int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -27,7 +26,7 @@ public:
 
    void setProperty(const char *name, const QVariant &value);
    bool event(QEvent *event);
-private:
+ private:
    QVector<Poppler::Document*> documents_;
    int columnCount_;
 };

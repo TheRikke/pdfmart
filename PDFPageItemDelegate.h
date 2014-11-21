@@ -4,12 +4,11 @@
 #include <QAbstractItemDelegate>
 
 namespace Poppler {
-   class Document;
+class Document;
 }
 
-class PDFPageItemDelegate : public QAbstractItemDelegate
-{
-public:
+class PDFPageItemDelegate : public QAbstractItemDelegate {
+ public:
    PDFPageItemDelegate(QObject *parent);
 
    void paint(QPainter *painter, const QStyleOptionViewItem &option,
@@ -17,7 +16,7 @@ public:
 
    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
-private:
+ private:
    typedef QPair<Poppler::Document*, int> ImageKey;
 
 };

@@ -9,15 +9,13 @@
 Q_DECLARE_METATYPE(Poppler::Document*)
 
 namespace {
-   const int MAX_CACHED_IMAGES = 500;
+const int MAX_CACHED_IMAGES = 500;
 }
 PDFPageItemDelegate::PDFPageItemDelegate(QObject *parent)
-   : QAbstractItemDelegate(parent)
-{
+   : QAbstractItemDelegate(parent) {
 }
 
-void PDFPageItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
-{
+void PDFPageItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const {
    static QCache< ImageKey, QImage > imageCache(MAX_CACHED_IMAGES);
    int documentNumber = index.row();
    int pageNumber = index.column();
@@ -48,11 +46,9 @@ void PDFPageItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
    }
 }
 
-QSize PDFPageItemDelegate::sizeHint(const QStyleOptionViewItem &/*option*/, const QModelIndex &index) const
-{
+QSize PDFPageItemDelegate::sizeHint(const QStyleOptionViewItem &/*option*/, const QModelIndex &index) const {
    QSize result;
-   if(index.isValid())
-   {
+   if(index.isValid()) {
       QVector<Poppler::Document*> documents = index.model()->property("SourceDocuments").value< QVector<Poppler::Document*> >();
       result = documents.at(index.row())->page(0)->pageSize();
    }

@@ -5,15 +5,14 @@
 #include "PageList.h"
 
 namespace Poppler {
-   class Document;
+class Document;
 }
 
 class OptionDialog
-      : public QDialog
-      , public Ui::Dialog
-{
+   : public QDialog
+   , public Ui::Dialog {
    Q_OBJECT
-public:
+ public:
    explicit OptionDialog(QObject *parent = NULL);
 
    PageList GetPageList() const;
@@ -22,15 +21,15 @@ public:
 
    typedef QVector<Poppler::Document*> PopplerDocumentList;
    bool eventFilter(QObject *object, QEvent *event);
-signals:
+ signals:
 
-public slots:
-    void OnColumnResized(int logicalIndex, int oldSize, int newSize);
+ public slots:
+   void OnColumnResized(int logicalIndex, int oldSize, int newSize);
 
    void OnMergedViewColumnResized(int, int oldSize, int newSize);
    void OnColumnCountChanged(int, int);
 
-private slots:
+ private slots:
    void on_actionEineAktion_triggered();
 
    void on_duplexButton_clicked();
@@ -39,7 +38,7 @@ private slots:
 
    void on_removeInput_clicked();
 
-private:
+ private:
    void LoadPDFs();
 };
 
