@@ -1,4 +1,4 @@
-project(pdfcat)
+project(pdfmart)
 cmake_minimum_required(VERSION 2.8)
 cmake_policy(SET CMP0020 NEW)
 # Find includes in corresponding build directories
