@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>pdfcat</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -39,7 +39,7 @@
        <item>
         <widget class="QPushButton" name="addInput">
          <property name="text">
-          <string>Add</string>
+          <string>Add ...</string>
          </property>
         </widget>
        </item>
@@ -67,19 +67,6 @@
         </size>
        </property>
       </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>Output</string>
-       </property>
-       <property name="buddy">
-        <cstring>outputFile</cstring>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <widget class="QLineEdit" name="outputFile"/>
      </item>
     </layout>
    </item>
@@ -121,6 +108,9 @@
       <property name="dragDropMode">
        <enum>QAbstractItemView::DragDrop</enum>
       </property>
+      <property name="selectionBehavior">
+       <enum>QAbstractItemView::SelectColumns</enum>
+      </property>
      </widget>
     </widget>
    </item>
@@ -141,57 +131,29 @@
       </widget>
      </item>
      <item>
-      <widget class="QDialogButtonBox" name="buttonBox">
-       <property name="standardButtons">
-        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="writePDFButton">
+       <property name="text">
+        <string>Write PDF ...</string>
        </property>
       </widget>
      </item>
     </layout>
    </item>
   </layout>
-  <action name="actionEineAktion">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>EineAktion</string>
-   </property>
-  </action>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>Dialog</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>428</x>
-     <y>263</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>330</x>
-     <y>140</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>Dialog</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>428</x>
-     <y>263</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>330</x>
-     <y>140</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

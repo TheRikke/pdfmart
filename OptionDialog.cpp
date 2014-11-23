@@ -1,13 +1,15 @@
 #include "OptionDialog.h"
-#include <poppler-qt5.h>
-#include <QObject>
-#include <QListWidgetItem>
-#include <QFileDialog>
 #include "PDFPagesModel.h"
 #include "PDFMergeModel.h"
 #include "PDFPageItemDelegate.h"
+#include "MergePDF.h"
+#include <poppler-qt5.h>
 #include <QDebug>
+#include <QFileDialog>
 #include <QKeyEvent>
+#include <QListWidgetItem>
+#include <QMessageBox>
+#include <QObject>
 
 Q_DECLARE_METATYPE(Poppler::Document*)
 
@@ -91,10 +93,6 @@ void OptionDialog::OnMergedViewColumnResized(int /*logicalIndex*/, int /*oldSize
    }
 }
 
-void OptionDialog::on_actionEineAktion_triggered() {
-//   MergPDFs();
-}
-
 void OptionDialog::on_duplexButton_clicked() {
    const int maxPageCount = pdfPages->model()->columnCount();
 
@@ -173,4 +171,30 @@ bool OptionDialog::eventFilter(QObject* object, QEvent* event) {
       qDebug() << "Event filter: other key pressed";
    }
    return QWidget::eventFilter(object, event);
+}
+
+void OptionDialog::on_writePDFButton_clicked()
+{
+   QFileDialog fileDialog(this, "Choose PDF files");
+   fileDialog.setDefaultSuffix(".pdf");
+   fileDialog.setNameFilter("PDFs (*.pdf)");
+   fileDialog.setFileMode(QFileDialog::AnyFile);
+   QString saveFileName = fileDialog.getSaveFileName(this, tr("Save PDF"));
+   if(QFile::exists(saveFileName)) {
+      if(QMessageBox::question(this,
+                            tr("Warning"),
+                            tr("File already exists. Overwrite?"),
+                            QMessageBox::Ok | QMessageBox::Cancel,
+                            QMessageBox::Ok) == QMessageBox::Cancel)
+         return;
+   }
+
+   MergePDF merger;
+   QStringList fileNames;
+   int fileNamesCount = InputList->count();
+   for(int i = 0; i < fileNamesCount; i++)
+   {
+      fileNames << InputList->item(i)->text();
+   }
+   merger.Merge(fileNames, GetPageList(), saveFileName);
 }

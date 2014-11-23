@@ -20,7 +20,6 @@ class OptionDialog
    void AddInputFiles(const QStringList &fileNames);
 
    typedef QVector<Poppler::Document*> PopplerDocumentList;
-   bool eventFilter(QObject *object, QEvent *event);
  signals:
 
  public slots:
@@ -30,16 +29,17 @@ class OptionDialog
    void OnColumnCountChanged(int, int);
 
  private slots:
-   void on_actionEineAktion_triggered();
-
    void on_duplexButton_clicked();
 
    void on_addInput_clicked();
 
    void on_removeInput_clicked();
 
- private:
+   void on_writePDFButton_clicked();
+
+private:
    void LoadPDFs();
+   bool eventFilter(QObject *object, QEvent *event);
 };
 
 #endif // OPTIONDIALOG_H
