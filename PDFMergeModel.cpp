@@ -77,9 +77,11 @@ QVariant PDFMergeModel::headerData(int section, Qt::Orientation orientation, int
 }
 
 bool PDFMergeModel::removeColumns(int column, int count, const QModelIndex &parent) {
-   beginRemoveColumns(parent, column, column + count - 1);
-   pageList_.remove(column, count);
-   endRemoveColumns();
+   if(count>0) {
+      beginRemoveColumns(parent, column, column + count - 1);
+      pageList_.remove(column, count);
+      endRemoveColumns();
+   }
    return true;
 }
 
