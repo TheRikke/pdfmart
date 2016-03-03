@@ -149,6 +149,7 @@ void OptionDialog::on_removeInput_clicked() {
    foreach(QListWidgetItem *item, selectedFiles) {
       delete item;
    }
+   LoadPDFs();
 }
 
 bool OptionDialog::eventFilter(QObject* object, QEvent* event) {
