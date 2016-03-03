@@ -95,7 +95,7 @@ bool PDFMergeModel::dropMimeData(const QMimeData *data, Qt::DropAction /*action*
    QDataStream stream(&encodedData, QIODevice::ReadOnly);
    PageList pageList;
    while(!stream.atEnd()) {
-      long long origin_row, origin_column;
+      int origin_row, origin_column;
       stream >> origin_row >> origin_column;
       pageList.append(PageEntry(origin_row, origin_column));
    }

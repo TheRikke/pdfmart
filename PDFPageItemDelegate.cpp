@@ -24,8 +24,8 @@ void PDFPageItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
    QVariant data = itemModel->data(index, Qt::UserRole);
    if(data.isValid()) {
       QSize position(data.toSize());
-      documentNumber = position.height();
-      pageNumber = position.width();
+      documentNumber = position.width();
+      pageNumber = position.height();
    }
    QVector<Poppler::Document*> documents = itemModel->property("SourceDocuments").value< QVector<Poppler::Document*> >();
 
