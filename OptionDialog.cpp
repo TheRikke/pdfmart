@@ -10,7 +10,7 @@
 #include <QListWidgetItem>
 #include <QMessageBox>
 #include <QObject>
-
+#include <QSettings>
 Q_DECLARE_METATYPE(Poppler::Document*)
 
 OptionDialog::OptionDialog(QObject */*parent*/) :
@@ -128,6 +128,8 @@ void OptionDialog::on_addInput_clicked() {
    fileDialog.setDefaultSuffix(".pdf");
    fileDialog.setNameFilter("PDFs (*.pdf)");
    fileDialog.setFileMode(QFileDialog::ExistingFiles);
+   QSettings settings;
+   fileDialog.setDirectory(settings.value("Dialog/LastDirectory").toString());
    QStringList fileNames;
    if (fileDialog.exec())
       fileNames = fileDialog.selectedFiles();
@@ -176,26 +178,33 @@ bool OptionDialog::eventFilter(QObject* object, QEvent* event) {
 
 void OptionDialog::on_writePDFButton_clicked()
 {
-   QFileDialog fileDialog(this, "Choose PDF files");
+   QFileDialog fileDialog(this,
+                          "Save PDF",
+                          QSettings().value("Dialog/LastOutputDirectory").toString(),
+                          "PDFs (*.pdf)");
    fileDialog.setDefaultSuffix(".pdf");
-   fileDialog.setNameFilter("PDFs (*.pdf)");
    fileDialog.setFileMode(QFileDialog::AnyFile);
-   QString saveFileName = fileDialog.getSaveFileName(this, tr("Save PDF"));
-   if(QFile::exists(saveFileName)) {
-      if(QMessageBox::question(this,
-                            tr("Warning"),
-                            tr("File already exists. Overwrite?"),
-                            QMessageBox::Ok | QMessageBox::Cancel,
-                            QMessageBox::Ok) == QMessageBox::Cancel)
-         return;
-   }
+   fileDialog.setAcceptMode(QFileDialog::AcceptSave);
 
-   MergePDF merger;
-   QStringList fileNames;
-   int fileNamesCount = InputList->count();
-   for(int i = 0; i < fileNamesCount; i++)
-   {
-      fileNames << InputList->item(i)->text();
+   if (fileDialog.exec()) {
+      QString saveFileName = fileDialog.selectedFiles().first();
+
+      if(!fileDialog.selectedFiles().isEmpty() && QFile::exists(saveFileName)) {
+         if(QMessageBox::question(this,
+                               tr("Warning"),
+                               tr("File already exists. Overwrite?"),
+                               QMessageBox::Ok | QMessageBox::Cancel,
+                               QMessageBox::Ok) == QMessageBox::Cancel)
+            return;
+      }
+
+      MergePDF merger;
+      QStringList fileNames;
+      int fileNamesCount = InputList->count();
+      for(int i = 0; i < fileNamesCount; i++)
+      {
+         fileNames << InputList->item(i)->text();
+      }
+      merger.Merge(fileNames, GetPageList(), saveFileName);
    }
-   merger.Merge(fileNames, GetPageList(), saveFileName);
 }
