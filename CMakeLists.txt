@@ -19,6 +19,6 @@ add_definitions(-Wall -Wextra)
 aux_source_directory(. SRC_LIST)
 add_executable(${PROJECT_NAME} WIN32 ${SRC_LIST} ${UIS_HDRS} )
 
-target_link_libraries(${PROJECT_NAME} ${POPPLER_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${POPPLER_LIBRARIES} ${Qt5Widgets_LIBRARIES})
 
 qt5_use_modules( ${PROJECT_NAME} Widgets )
