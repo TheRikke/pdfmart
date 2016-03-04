@@ -165,10 +165,10 @@ bool OptionDialog::eventFilter(QObject* object, QEvent* event) {
          if (mergedView->hasFocus()) {
             QModelIndexList selectedPages = mergedView->selectionModel()->selectedIndexes();
             QAbstractItemModel* model = mergedView->model();
-            foreach(QModelIndex index, selectedPages) {
-               model->removeColumn(index.column());
+            for (int indexOfSelectedIndex = selectedPages.count() - 1; indexOfSelectedIndex >= 0; indexOfSelectedIndex--)
+            {
+                model->removeColumn(selectedPages.at(indexOfSelectedIndex).column());
             }
-
             qDebug() << "Event filter: Focus yes, Delete key pressed";
          } else {
             qDebug() << "Event filter: Focus NO, Delete key pressed";
