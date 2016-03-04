@@ -16,6 +16,10 @@ Q_DECLARE_METATYPE(Poppler::Document*)
 OptionDialog::OptionDialog(QObject */*parent*/) :
    Ui::Dialog() {
    setupUi(this);
+
+   QSettings settings;
+   restoreGeometry(settings.value("Dialog/geometry").toByteArray());
+
    mergedView->installEventFilter(this);
 
    connect (pdfPages->horizontalHeader(), SIGNAL(sectionResized(int,int,int)), this, SLOT(OnColumnResized(int, int, int)));
@@ -174,6 +178,13 @@ bool OptionDialog::eventFilter(QObject* object, QEvent* event) {
       qDebug() << "Event filter: other key pressed";
    }
    return QWidget::eventFilter(object, event);
+}
+
+void OptionDialog::closeEvent(QCloseEvent *event)
+{
+   QSettings settings;
+   settings.setValue("Dialog/geometry", saveGeometry());
+   QDialog::closeEvent(event);
 }
 
 void OptionDialog::on_writePDFButton_clicked()

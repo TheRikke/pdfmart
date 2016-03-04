@@ -40,6 +40,9 @@ class OptionDialog
 private:
    void LoadPDFs();
    bool eventFilter(QObject *object, QEvent *event);
+
+protected:
+   void closeEvent(QCloseEvent *);
 };
 
 #endif // OPTIONDIALOG_H
