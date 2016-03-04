@@ -1,5 +1,7 @@
 #include <QApplication>
 #include <QCommandLineParser>
+#include <QSettings>
+#include <QDebug>
 
 #include "OptionDialog.h"
 #include "MergePDF.h"
@@ -8,6 +10,7 @@
 int main(int argc, char *argv[])
 {
    QApplication app(argc, argv);
+   QCoreApplication::setOrganizationName("rikky@web.de");
    QCoreApplication::setApplicationName("pdfmart");
    QCoreApplication::setApplicationVersion("1.0");
 
