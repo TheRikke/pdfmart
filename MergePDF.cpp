@@ -1,6 +1,7 @@
 #include "MergePDF.h"
 #include <QFile>
 #include  <QtDebug>
+#include <QTemporaryFile>
 
 namespace {
 const char* MERGE_TOOL_NAMES[] = { "pdftk", "pdftk.exe", NULL };
@@ -33,6 +34,21 @@ void MergePDF::FindPdfTk() {
    }
 }
 
+void WriteMetaDataFile(QTemporaryFile& meta_data_file, const MetaDataList &meta_data_list)
+{
+   if(meta_data_file.open())
+   {
+      QTextStream in(&meta_data_file);
+      MetaDataList::const_iterator it = meta_data_list.constBegin();
+      while (it != meta_data_list.constEnd()) {
+         in << "InfoKey: " << it.key() << "\nInfoValue: " << it.value() << "\n";
+         ++it;
+      }
+      meta_data_file.close();
+   }
+
+}
+
 void MergePDF::Merge(QString inputFile1, QString inputFile2, QString outputFile, bool /*splitByPage*/) {
    QStringList arguments;
    arguments.append(QString("A=%1").arg(inputFile1));
@@ -48,7 +64,8 @@ void MergePDF::Merge(QString inputFile1, QString inputFile2, QString outputFile,
    MergeTool.waitForFinished(-1);
 }
 
-void MergePDF::Merge(const QStringList& inputFiles, const PageList& pageList, const QString& outputFile) {
+void MergePDF::Merge(const QStringList& inputFiles, const PageList& pageList, const QString& outputFile, const MetaDataList &meta_data_list) {
+   QString current_output_file = meta_data_list.empty() ? outputFile : outputFile + ".tmp";
    QStringList arguments;
 
    char fileAlias('A');
@@ -63,13 +80,38 @@ void MergePDF::Merge(const QStringList& inputFiles, const PageList& pageList, co
       arguments.append(QString("%1%2").arg((char)(fileAlias + pageEntry.first)).arg(pageEntry.second+1));
    }
    arguments.append("output");
-   arguments.append(outputFile);
+   arguments.append(current_output_file);
    arguments.append("verbose");
    arguments.append("dont_ask");
+
    MergeTool.setArguments(arguments);
    MergeTool.start();
    MergeTool.waitForFinished(-1);
    qDebug() << "ConvertLog: " << MergeTool.state() << QString(MergeTool.readAll()).replace('\r',"") << MergeTool.arguments().join("' '");
+
+
+   if(!meta_data_list.empty()) {
+      QTemporaryFile meta_data_file;
+      meta_data_file.setAutoRemove(false);
+      WriteMetaDataFile(meta_data_file, meta_data_list);
+      qDebug() << meta_data_file.fileName();
+      QStringList meta_data_arguments;
+      meta_data_arguments.append(current_output_file);
+
+      meta_data_arguments.append("update_info");
+      meta_data_arguments.append(meta_data_file.fileName());
+
+      meta_data_arguments.append("output");
+      meta_data_arguments.append(outputFile);
+      meta_data_arguments.append("verbose");
+      meta_data_arguments.append("dont_ask");
+
+      MergeTool.setArguments(meta_data_arguments);
+      MergeTool.start();
+      MergeTool.waitForFinished(-1);
+      qDebug() << "ConvertLog: " << MergeTool.state() << QString(MergeTool.readAll()).replace('\r',"") << MergeTool.arguments().join("' '");
+   }
+
 }
 
 

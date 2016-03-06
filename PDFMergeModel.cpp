@@ -27,8 +27,7 @@ QModelIndex PDFMergeModel::index(int row, int column, const QModelIndex &/*paren
    return createIndex(row, column);
 }
 
-QModelIndex PDFMergeModel::parent(const QModelIndex &child) const {
-   qDebug() << "createIndex for child" << child;
+QModelIndex PDFMergeModel::parent(const QModelIndex &/*child*/) const {
    return QModelIndex();
 }
 
@@ -77,6 +76,7 @@ QVariant PDFMergeModel::headerData(int section, Qt::Orientation orientation, int
 }
 
 bool PDFMergeModel::removeColumns(int column, int count, const QModelIndex &parent) {
+   qDebug() << column << count <<  column + count - 1;
    if(count>0) {
       beginRemoveColumns(parent, column, column + count - 1);
       pageList_.remove(column, count);

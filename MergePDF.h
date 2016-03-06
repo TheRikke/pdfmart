@@ -6,17 +6,20 @@
 #include <QProcess>
 
 
+typedef QHash<QString, QString> MetaDataList;
+
 class MergePDF : public QObject {
    Q_OBJECT
  public:
    explicit MergePDF(QObject *parent = 0);
 
    void FindPdfTk();
+
  signals:
 
  public slots:
    void Merge(QString, QString, QString, bool);
-   void Merge(const QStringList& inputFiles, const PageList& pageList, const QString& outputFile);
+   void Merge(const QStringList& inputFiles, const PageList& pageList, const QString& outputFile, const MetaDataList &meta_data_list = MetaDataList());
 
  private:
    QProcess MergeTool;

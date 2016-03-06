@@ -187,6 +187,19 @@ void OptionDialog::closeEvent(QCloseEvent *event)
    QDialog::closeEvent(event);
 }
 
+MetaDataList GetMetaData(QTableWidget* table)
+{
+   MetaDataList meta_data_list ;
+   for (int row_index = 0; row_index < table->rowCount(); ++row_index) {
+      qDebug() << table->item(row_index, 0)->text();
+      QTableWidgetItem* item = table->item(row_index, 1);
+      if(item && !item->text().isEmpty()) {
+         meta_data_list[table->item(row_index, 0)->text()] = item->text();
+      }
+   }
+   return meta_data_list;
+}
+
 void OptionDialog::on_writePDFButton_clicked()
 {
    QFileDialog fileDialog(this,
@@ -216,6 +229,6 @@ void OptionDialog::on_writePDFButton_clicked()
       {
          fileNames << InputList->item(i)->text();
       }
-      merger.Merge(fileNames, GetPageList(), saveFileName);
+      merger.Merge(fileNames, GetPageList(), saveFileName, GetMetaData(tagList));
    }
 }
