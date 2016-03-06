@@ -5,6 +5,10 @@
 #include <poppler-qt5.h>
 #include <QPainter>
 #include <QCache>
+#include <QScreen>
+#include <QApplication>
+
+#include <QDebug>
 
 Q_DECLARE_METATYPE(Poppler::Document*)
 
@@ -36,9 +40,10 @@ void PDFPageItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
       ImageKey key(document, pageNumber);
       QImage *newPage = imageCache.object(key);
       if(!newPage) {
-         qDebug("Cache miss for page %d in doc %p", pageNumber, document);
+         QScreen* screen = QApplication::screens().first();
          Poppler::Page *page = document->page(pageNumber);
-         newPage = new QImage(page->renderToImage());
+         newPage = new QImage(page->renderToImage(static_cast<const int>(screen->logicalDotsPerInchX()), static_cast<const int>(screen->logicalDotsPerInchY())));
+         qDebug("Cache miss for page %d in doc %p (DPI %f, W: %d, H: %d)", pageNumber, document, screen->logicalDotsPerInch(), page->pageSize().width(),  page->pageSize().height());
          delete page;
 
          imageCache.insert(key, newPage);
