@@ -68,10 +68,11 @@ void OptionDialog::LoadPDFs() {
 void OptionDialog::OnColumnResized(int /*logicalIndex*/, int /*oldSize*/, int newSize) {
    const int columnCount = pdfPages->model()->columnCount();
    const int rowCount = pdfPages->model()->rowCount();
+   QVector<Poppler::Document*> documents = pdfPages->model()->property("SourceDocuments").value< QVector<Poppler::Document*> >();
+   QSize pageSize = documents.at(0)->page(0)->pageSize();
 
-   QModelIndex firstRowModelIndex = pdfPages->rootIndex();
-   QSize pageSize = pdfPages->itemDelegate()->sizeHint(QStyleOptionViewItem(), firstRowModelIndex);
-   int newHeight = (newSize * pageSize.height()) / pageSize.width();
+   qDebug() << "OnColumnResized size " << pageSize;
+   int newHeight =  (newSize * pageSize.height()) / pageSize.width();
    for(int columnIndex = 0; columnIndex < columnCount; ++columnIndex) {
       pdfPages->setColumnWidth(columnIndex, newSize);
    }
