@@ -19,7 +19,12 @@ add_definitions(-Wall -Wextra)
 aux_source_directory(. SRC_LIST)
 add_executable(${PROJECT_NAME} WIN32 ${SRC_LIST} ${UIS_HDRS} )
 
-target_link_libraries(${PROJECT_NAME} ${POPPLER_LIBRARIES} ${Qt5Widgets_LIBRARIES})
+get_target_property(WIDGET_DLL Qt5::Widgets IMPORTED_LOCATION)
+INSTALL(FILES "${WIDGET_DLL}" DESTINATION bin
+                COMPONENT applications)
+
+target_link_libraries(${PROJECT_NAME} ${POPPLER_LIBRARIES} Qt5::Widgets)
+INSTALL(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin  )
 
 qt5_use_modules( ${PROJECT_NAME} Widgets )
 INCLUDE(InstallRequiredSystemLibraries)
