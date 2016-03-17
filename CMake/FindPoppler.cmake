@@ -87,7 +87,7 @@ else( NOT(POPPLER_LIBRARY) )
   # Scan poppler libraries for dependencies on Fontconfig
   include(GetPrerequisites)
   mark_as_advanced(gp_cmd)
-  GET_PREREQUISITES("${POPPLER_LIBRARY}" POPPLER_PREREQS 1 0 "" "")
+  GET_PREREQUISITES("${POPPLER_LIBRARY}" POPPLER_PREREQS TRUE FALSE "" "")
   if("${POPPLER_PREREQS}" MATCHES "fontconfig")
     set(POPPLER_NEEDS_FONTCONFIG TRUE)
   else()
