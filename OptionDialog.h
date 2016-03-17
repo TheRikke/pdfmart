@@ -18,7 +18,7 @@ class OptionDialog
    PageList GetPageList() const;
 
    void AddInputFiles(const QStringList &fileNames);
-
+   void SetDebug(bool);
    typedef QVector<Poppler::Document*> PopplerDocumentList;
  signals:
 
@@ -40,6 +40,7 @@ class OptionDialog
 private:
    void LoadPDFs();
    bool eventFilter(QObject *object, QEvent *event);
+   bool DebugEnabled;
 
 protected:
    void closeEvent(QCloseEvent *);

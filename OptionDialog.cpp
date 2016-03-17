@@ -1,8 +1,12 @@
 #include "OptionDialog.h"
+#include "OcrHandler.h"
 #include "PDFPagesModel.h"
 #include "PDFMergeModel.h"
 #include "PDFPageItemDelegate.h"
 #include "MergePDF.h"
+#include "PopplerTools.h"
+#include "PMSettings.h"
+
 #include <poppler-qt5.h>
 #include <QDebug>
 #include <QFileDialog>
@@ -11,10 +15,14 @@
 #include <QMessageBox>
 #include <QObject>
 #include <QSettings>
+#include <QTemporaryDir>
+
 Q_DECLARE_METATYPE(Poppler::Document*)
 
-OptionDialog::OptionDialog(QObject */*parent*/) :
-   Ui::Dialog() {
+OptionDialog::OptionDialog(QObject */*parent*/)
+   : Ui::Dialog()
+   , DebugEnabled(false)
+{
    setupUi(this);
 
    QSettings settings;
@@ -136,8 +144,10 @@ void OptionDialog::on_addInput_clicked() {
    QSettings settings;
    fileDialog.setDirectory(settings.value("Dialog/LastDirectory").toString());
    QStringList fileNames;
-   if (fileDialog.exec())
+   if (fileDialog.exec()) {
       fileNames = fileDialog.selectedFiles();
+      settings.setValue("Dialog/LastDirectory", fileDialog.directory().absolutePath());
+   }
    AddInputFiles(fileNames);
 }
 
@@ -149,6 +159,11 @@ void OptionDialog::AddInputFiles(const QStringList &fileNames) {
    PopplerDocumentList oldDocuments = docs.value<PopplerDocumentList>();
    LoadPDFs();
    qDeleteAll(oldDocuments);
+}
+
+void OptionDialog::SetDebug(const bool debug)
+{
+   DebugEnabled = debug;
 }
 
 void OptionDialog::on_removeInput_clicked() {
@@ -203,9 +218,10 @@ MetaDataList GetMetaData(QTableWidget* table)
 
 void OptionDialog::on_writePDFButton_clicked()
 {
+   QSettings settings;
    QFileDialog fileDialog(this,
                           "Save PDF",
-                          QSettings().value("Dialog/LastOutputDirectory").toString(),
+                          settings.value("Dialog/LastOutputDirectory").toString(),
                           "PDFs (*.pdf)");
    fileDialog.setDefaultSuffix(".pdf");
    fileDialog.setFileMode(QFileDialog::AnyFile);
@@ -222,14 +238,32 @@ void OptionDialog::on_writePDFButton_clicked()
                                QMessageBox::Ok) == QMessageBox::Cancel)
             return;
       }
-
-      MergePDF merger;
+      settings.setValue("Dialog/LastOutputDirectory", fileDialog.directory().absolutePath());
       QStringList fileNames;
-      int fileNamesCount = InputList->count();
+      const int fileNamesCount = InputList->count();
       for(int i = 0; i < fileNamesCount; i++)
       {
          fileNames << InputList->item(i)->text();
       }
-      merger.Merge(fileNames, GetPageList(), saveFileName, GetMetaData(tagList));
+
+      //separate pages
+      PopplerTools tool;
+      QStringList files = tool.WriteToPageList(fileNames, GetPageList(), fileDialog.directory().absolutePath());
+
+      //ocr and to pdf
+      OcrHandler ocrHandler;
+      QTemporaryDir tempDir;
+      tempDir.setAutoRemove(!PMSettings::IsDebugEnabled());
+      QStringList separatedPDFFiles;
+      if (tempDir.isValid()) {
+         qDebug() << tempDir.path();
+         foreach(const QString &file, files) {
+            separatedPDFFiles.append(ocrHandler.AddTextToPDF(file, tempDir.path() + QDir::separator() + QFileInfo(file).baseName()));
+         }
+      }
+
+      //unite the pages
+      tool.MergePDF(separatedPDFFiles, saveFileName, GetMetaData(tagList));
+      qDebug() << files;
    }
 }

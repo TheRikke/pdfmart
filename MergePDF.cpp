@@ -4,13 +4,11 @@
 #include <QTemporaryFile>
 
 namespace {
-const char* MERGE_TOOL_NAMES[] = { "pdftk", "pdftk.exe", NULL };
+   const char* MERGE_TOOL_NAMES[] = { "pdftk", "pdftk.exe", NULL };
 }
 
-MergePDF::MergePDF(QObject *parent)
-
-   : QObject(parent)
-   , MergeTool(this) {
+MergePDF::MergePDF()
+   :  MergeTool() {
    FindPdfTk();
 }
 
@@ -46,7 +44,6 @@ void WriteMetaDataFile(QTemporaryFile& meta_data_file, const MetaDataList &meta_
       }
       meta_data_file.close();
    }
-
 }
 
 void MergePDF::Merge(QString inputFile1, QString inputFile2, QString outputFile, bool /*splitByPage*/) {
@@ -111,9 +108,12 @@ void MergePDF::Merge(const QStringList& inputFiles, const PageList& pageList, co
       MergeTool.waitForFinished(-1);
       qDebug() << "ConvertLog: " << MergeTool.state() << QString(MergeTool.readAll()).replace('\r',"") << MergeTool.arguments().join("' '");
    }
-
 }
 
+QStringList MergePDF::WriteToPageList(const QStringList &/*inputFiles*/, const PageList &/*pageList*/, const QString &/*outputPath*/)
+{
+   qFatal("Not implemented");
+}
 
 int MergePDF::GetNumberOfPages(QString pdfFile) {
    qDebug("Start GetNumberOfPages");

@@ -7,7 +7,7 @@
 #include <QStandardItem>
 
 namespace {
-const char *MIME_TYPE = "application/x-pdfcat-pdfpages";
+const char *MIME_TYPE = "application/x-pdfmart-pdfpages";
 }
 PDFMergeModel::PDFMergeModel(QObject * parent)
    : QAbstractTableModel(parent)

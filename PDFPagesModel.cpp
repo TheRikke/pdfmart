@@ -66,7 +66,7 @@ QMimeData *PDFPagesModel::mimeData(const QModelIndexList &indexes) const {
    }
 
    QMimeData *pdfMimeData = new QMimeData();
-   pdfMimeData->setData("application/x-pdfcat-pdfpages", encoded);
+   pdfMimeData->setData("application/x-pdfmart-pdfpages", encoded);
    return pdfMimeData;
 }
 

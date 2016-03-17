@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>pdfcat</string>
+   <string>PDF Merge And Rearrange Tool</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
