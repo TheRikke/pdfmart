@@ -12,7 +12,7 @@ public:
 
    void Merge(const QStringList &inputFiles, const PageList &pageList, const QString &outputFile, const MetaDataList &meta_data_list);
    void MergePDF(const QStringList &inputFiles, const QString &outputFile, const MetaDataList &meta_data_list);
-   QStringList WriteToPageList(const QStringList &inputFiles, const PageList &pageList, const QString &outputPath);
+   QStringList WriteToSeparatePages(const QStringList &inputFiles, const PageList &pageList, const QString &outputPath);
 private:
    QProcess PDFImageProcess;
    QProcess PDFUniteProcess;

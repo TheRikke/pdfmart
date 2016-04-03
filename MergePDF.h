@@ -16,7 +16,7 @@ class MergePDF : public IMerge {
    void Merge(QString, QString, QString, bool);
    void Merge(const QStringList& inputFiles, const PageList& pageList, const QString& outputFile, const MetaDataList &meta_data_list = MetaDataList());
 
-   QStringList WriteToPageList(const QStringList &inputFiles, const PageList &pageList, const QString &outputPath);
+   QStringList WriteToSeparatePages(const QStringList &inputFiles, const PageList &pageList, const QString &outputPath);
  private:
    void FindPdfTk();
    QProcess MergeTool;

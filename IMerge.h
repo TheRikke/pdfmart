@@ -11,7 +11,7 @@ class IMerge {
 public:
    virtual ~IMerge() {}
    virtual void Merge(const QStringList& inputFiles, const PageList& pageList, const QString& outputFile, const MetaDataList &meta_data_list = MetaDataList()) = 0;
-   virtual QStringList WriteToPageList(const QStringList& inputFiles, const PageList& pageList, const QString &outputPath) = 0;
+   virtual QStringList WriteToSeparatePages(const QStringList& inputFiles, const PageList& pageList, const QString &outputPath) = 0;
 };
 
 #endif // IMERGE_H

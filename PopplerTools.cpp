@@ -54,7 +54,7 @@ void PopplerTools::MergePDF(const QStringList &inputFiles, const QString &output
    qDebug() << "output: " << PDFUniteProcess.readAllStandardOutput() << PDFUniteProcess.errorString() << PDFUniteProcess.readAllStandardError();
  }
 
-QStringList PopplerTools::WriteToPageList(const QStringList &inputFiles, const PageList &pageList, const QString &outputPath)
+QStringList PopplerTools::WriteToSeparatePages(const QStringList &inputFiles, const PageList &pageList, const QString &outputPath)
 {
    int pageIndex = 0;
    QStringList outputFiles;

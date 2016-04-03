@@ -37,6 +37,8 @@ class OptionDialog
 
    void on_writePDFButton_clicked();
 
+   void on_appendAll_clicked();
+
 private:
    void LoadPDFs();
    bool eventFilter(QObject *object, QEvent *event);

@@ -110,7 +110,7 @@ void MergePDF::Merge(const QStringList& inputFiles, const PageList& pageList, co
    }
 }
 
-QStringList MergePDF::WriteToPageList(const QStringList &/*inputFiles*/, const PageList &/*pageList*/, const QString &/*outputPath*/)
+QStringList MergePDF::WriteToSeparatePages(const QStringList &/*inputFiles*/, const PageList &/*pageList*/, const QString &/*outputPath*/)
 {
    qFatal("Not implemented");
 }

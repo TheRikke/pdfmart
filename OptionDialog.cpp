@@ -248,9 +248,9 @@ void OptionDialog::on_writePDFButton_clicked()
 
       //separate pages
       PopplerTools tool;
-      QStringList files = tool.WriteToPageList(fileNames, GetPageList(), fileDialog.directory().absolutePath());
+      QStringList files = tool.WriteToSeparatePages(fileNames, GetPageList(), fileDialog.directory().absolutePath());
 
-      //ocr and to pdf
+      //ocr
       OcrHandler ocrHandler;
       QTemporaryDir tempDir;
       tempDir.setAutoRemove(!PMSettings::IsDebugEnabled());
@@ -266,4 +266,17 @@ void OptionDialog::on_writePDFButton_clicked()
       tool.MergePDF(separatedPDFFiles, saveFileName, GetMetaData(tagList));
       qDebug() << files;
    }
+}
+
+void OptionDialog::on_appendAll_clicked()
+{
+   QVector<Poppler::Document*> documents = pdfPages->model()->property("SourceDocuments").value< QVector<Poppler::Document*> >();
+   for(int docIndex = 0; docIndex < documents.size(); ++docIndex) {
+      for(int pageIndex = 0; pageIndex < documents.at(docIndex)->numPages(); ++pageIndex) {
+         QSize pagePos(docIndex, pageIndex);
+         mergedView->model()->setData(mergedView->model()->index(0, pageIndex), pagePos, Qt::UserRole);
+      }
+   }
+   mergedView->resizeRowsToContents();
+   mergedView->resizeColumnsToContents();
 }
