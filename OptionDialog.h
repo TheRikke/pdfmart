@@ -12,7 +12,7 @@ class OptionDialog
    : public QDialog
    , public Ui::Dialog {
    Q_OBJECT
- public:
+public:
    explicit OptionDialog(QObject *parent = NULL);
 
    PageList GetPageList() const;
@@ -20,9 +20,9 @@ class OptionDialog
    void AddInputFiles(const QStringList &fileNames);
    void SetDebug(bool);
    typedef QVector<Poppler::Document*> PopplerDocumentList;
- signals:
+signals:
 
- public slots:
+public slots:
    void OnColumnResized(int logicalIndex, int oldSize, int newSize);
 
    void OnMergedViewColumnResized(int, int oldSize, int newSize);
@@ -43,6 +43,8 @@ private:
    void LoadPDFs();
    bool eventFilter(QObject *object, QEvent *event);
    bool DebugEnabled;
+
+   void writeNewPDF(const QString &directory, QStringList fileNames, QString saveFileName);
 
 protected:
    void closeEvent(QCloseEvent *);

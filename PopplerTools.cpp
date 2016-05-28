@@ -1,7 +1,6 @@
 #include "PopplerTools.h"
 #include "PMSettings.h"
 
-#include <QTemporaryDir>
 #include <QDebug>
 
 namespace {
@@ -34,6 +33,7 @@ bool FindPDFImages(QProcess &pdfimagesProcess, const char* imageNames[]) {
 
 PopplerTools::PopplerTools()
 {
+   TempDir.setAutoRemove(!PMSettings::IsDebugEnabled());
    FindPDFImages(PDFImageProcess, PDFIMAGES_NAMES);
    FindPDFImages(PDFUniteProcess, PDFUNITE_NAMES);
 }
@@ -59,43 +59,49 @@ QStringList PopplerTools::WriteToSeparatePages(const QStringList &inputFiles, co
    int pageIndex = 0;
    QStringList outputFiles;
    QString destinationPath = outputPath;
-   QTemporaryDir tempDir;
-   tempDir.setAutoRemove(!PMSettings::IsDebugEnabled());
-   if (tempDir.isValid()) {
-      destinationPath = tempDir.path();
+
+   if (TempDir.isValid()) {
+      destinationPath = TempDir.path();
    }
    qDebug() << "Tempdir: " << destinationPath;
 
    QDir dir(destinationPath);
 
    foreach (const PageEntry& page, pageList) {
-     QString outputFile = destinationPath + QDir::separator() + QString("temp_doc_%1.tmp").arg(++pageIndex);
-     QStringList arguments;
-     const int pageNumber = page.second + 1;
-     arguments.append("-all");
-     arguments.append("-l");
-     arguments.append(QString::number(pageNumber));
-     arguments.append("-f");
-     arguments.append(QString::number(pageNumber));
-     arguments.append(inputFiles.at(page.first));
-     arguments.append(outputFile);
-     PDFImageProcess.setArguments(arguments);
-     PDFImageProcess.start();
-     PDFImageProcess.waitForFinished();
+      QString outputFile = destinationPath + QDir::separator() + QString("temp_doc_%1.tmp").arg(++pageIndex);
+      QStringList arguments;
+      const int pageNumber = page.second + 1;
+      arguments.append("-all");
+      arguments.append("-l");
+      arguments.append(QString::number(pageNumber));
+      arguments.append("-f");
+      arguments.append(QString::number(pageNumber));
+      arguments.append(inputFiles.at(page.first));
+      arguments.append(outputFile);
+      PDFImageProcess.setArguments(arguments);
+      PDFImageProcess.start();
+      PDFImageProcess.waitForFinished();
 
-     // correct the filename. pdfimages does not tell us, how the file will be called
-     QFileInfo fileTofind(outputFile);
-     if (!fileTofind.exists()) {
-        QStringList foundFiles = dir.entryList(QStringList() << (fileTofind.baseName() + "*" ));
-        if(foundFiles.size() == 1) {
-           outputFile = destinationPath + QDir::separator() + foundFiles.first();
-        }
-        else {
-           qWarning() << "Could not find correct output file of pdfimages " << foundFiles;
-        }
-     }
+      // correct the filename. pdfimages does not tell us how the file will be called
+      QFileInfo fileTofind(outputFile);
+      if (!fileTofind.exists()) {
+         QStringList foundFiles = dir.entryList(QStringList() << (fileTofind.baseName() + "*" ));
+         if(foundFiles.size() == 1) {
+            outputFile = destinationPath + QDir::separator() + foundFiles.first();
+         }
+         else {
+            if(foundFiles.size() > 1) {
+               qWarning() << "Found to many images for this page: " << fileTofind.baseName() << ". Maybe not from scanned source?";
+            } else {
+               qWarning() << "Could not find correct output for file " << fileTofind.baseName() << ". Found these pdfimages " << foundFiles;
+            }
+            outputFile = "";
+         }
+      }
 
-     outputFiles.append(outputFile);
+      if(QFileInfo(outputFile).exists()) {
+         outputFiles.append(outputFile);
+      }
    }
 
    return outputFiles;

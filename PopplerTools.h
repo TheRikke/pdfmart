@@ -3,6 +3,7 @@
 
 #include "IMerge.h"
 #include <QProcess>
+#include <QTemporaryDir>
 
 class PopplerTools
       : public IMerge
@@ -16,6 +17,7 @@ public:
 private:
    QProcess PDFImageProcess;
    QProcess PDFUniteProcess;
+   QTemporaryDir TempDir;
 };
 
 #endif // POPPLER_TOOLS_H

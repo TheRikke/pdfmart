@@ -86,20 +86,39 @@ bool PDFMergeModel::removeColumns(int column, int count, const QModelIndex &pare
 }
 
 Qt::ItemFlags PDFMergeModel::flags(const QModelIndex &/*index*/) const {
-   return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDropEnabled | Qt::ItemIsEditable;
+   return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDropEnabled | Qt::ItemIsEditable | Qt::ItemIsDragEnabled;
 }
+
+void fixList(QList<int>& list, int index) {
+   for(int currentIndex = 0; currentIndex < list.size(); ++currentIndex) {
+      int& currentPage = list[currentIndex];
+      if(currentPage > index)
+         currentPage--;
+   }
+}
+
 
 bool PDFMergeModel::dropMimeData(const QMimeData *data, Qt::DropAction /*action*/, int row, int column, const QModelIndex &parent) {
    QStringList formats = data->formats();
    QByteArray encodedData = data->data(formats[0]);
    QDataStream stream(&encodedData, QIODevice::ReadOnly);
    PageList pageList;
+   QList<int> removeList;
+//   PageList removeList;
    while(!stream.atEnd()) {
-      int origin_row, origin_column;
-      stream >> origin_row >> origin_column;
+      int origin_row, origin_column, origin_list;
+      stream >> origin_row >> origin_column >> origin_list;
       pageList.append(PageEntry(origin_row, origin_column));
+      if(origin_list >= 0) {
+         removeList.append(origin_list);
+      }
    }
 
+   while(!removeList.isEmpty()) {
+      int pageIndex = removeList.takeLast();
+      pageList_.remove(pageIndex);
+      fixList(removeList, pageIndex);
+   }
    int beginColumn = -1;
 
    if (column != -1)
@@ -120,4 +139,19 @@ bool PDFMergeModel::dropMimeData(const QMimeData *data, Qt::DropAction /*action*
 QStringList PDFMergeModel::mimeTypes() const {
    QStringList types(MIME_TYPE);
    return types;
+}
+
+QMimeData *PDFMergeModel::mimeData(const QModelIndexList &indexes) const {
+   QByteArray encoded;
+   QDataStream stream(&encoded, QIODevice::WriteOnly);
+   for (int i = 0; i < indexes.count(); ++i) {
+      const QModelIndex& modelIndex = indexes.at(i);
+      const PageEntry entry = pageList_.at(modelIndex.column());
+
+      stream << entry.first << entry.second << modelIndex.column();
+   }
+
+   QMimeData *pdfMimeData = new QMimeData();
+   pdfMimeData->setData("application/x-pdfmart-pdfpages", encoded);
+   return pdfMimeData;
 }

@@ -5,7 +5,7 @@
 #include <QFile>
 
 namespace {
-   const char* TESSERACT_NAMES[] = { "tesseract", "tesseract.exe", NULL };
+   const char* TESSERACT_NAMES[] = { "tesseract", "tesseract.exe", "C:/Program Files (x86)/Tesseract-OCR/tesseract.exe", NULL };
 }
 
 
@@ -14,10 +14,10 @@ bool FindTesseract(QProcess &tesseractProcess) {
    bool foundTesseract = false;
    tesseractProcess.setArguments(QStringList("--help"));
    while(TESSERACT_NAMES[index] != 0) {
-      QString command("C:/Program Files (x86)/Tesseract-OCR/tesseract.exe");
+      QString command(TESSERACT_NAMES[index]);
       if(!QFile::exists(command))
       {
-         qWarning() << "Damn, not fouund " << command;
+         qWarning() << "Damn, not found yet: " << command;
       }
 //      tesseractProcess.execute(command, QStringList("--help"));
 //      tesseractProcess.setWorkingDirectory("C:/Program Files (x86)/Tesseract-OCR/");

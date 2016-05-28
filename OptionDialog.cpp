@@ -16,6 +16,9 @@
 #include <QObject>
 #include <QSettings>
 #include <QTemporaryDir>
+#include <QImageReader>
+#include <QFuture>
+#include <QtConcurrent/QtConcurrent>
 
 Q_DECLARE_METATYPE(Poppler::Document*)
 
@@ -39,6 +42,7 @@ OptionDialog::OptionDialog(QObject */*parent*/)
 
    pdfPages->setItemDelegate(new PDFPageItemDelegate(this));
    pdfPages->setModel(new PDFPagesModel(this));
+   progressBar->setVisible(false);
 }
 
 PageList OptionDialog::GetPageList() const {
@@ -216,6 +220,73 @@ MetaDataList GetMetaData(QTableWidget* table)
    return meta_data_list;
 }
 
+bool EndsWithOneOf(const QString &stringToTest, const QStringList& endings)
+{
+   QStringList::const_iterator it = endings.begin();
+   while(it != endings.constEnd() && !stringToTest.endsWith(*it))
+   {
+      ++it;
+   }
+   return (it != endings.constEnd());
+}
+
+QStringList ConvertIfNeeded(const QStringList &files, const QStringList &supportedFormats)
+{
+   QStringList returnFileList;
+   foreach (const QString &file, files) {
+      if(!EndsWithOneOf(file, supportedFormats)) {
+         QImageReader reader(file);
+         QImage page = reader.read();
+         QFileInfo fileInfo(file);
+         QString newFileName = fileInfo.absolutePath().append(QDir::separator()).append(fileInfo.baseName()).append(".jpg");
+         if(!page.save(newFileName, "jpg", 100)) {
+            qCritical() << "Could not convert '" << file << "' to '" << newFileName << "'. Conversion is used to workaround a tesseract bug. You could try disabling conversion with '-c'";
+         }
+         else {
+            qDebug() << "Converted '" << file << "' to '" << newFileName << "'.";
+         }
+
+         returnFileList << newFileName;
+      } else {
+         returnFileList << file;
+      }
+   }
+   return returnFileList;
+}
+
+void OptionDialog::writeNewPDF(const QString &directory, QStringList fileNames, QString saveFileName)
+{
+   PopplerTools tool;
+   QStringList files = tool.WriteToSeparatePages(fileNames, GetPageList(), directory);
+
+   if(!files.empty()) {
+      QMetaObject::invokeMethod(progressBar, "setMaximum", Q_ARG(int, files.size()));
+      if(!PMSettings::IsConversionDisabled()) {
+         files = ConvertIfNeeded(files, QStringList() << "jpg" << "tiff");
+      }
+
+      int currentFileProgress = 0;
+      //ocr
+      OcrHandler ocrHandler;
+      QTemporaryDir tempDir;
+      tempDir.setAutoRemove(!PMSettings::IsDebugEnabled());
+      QStringList separatedPDFFiles;
+      if (tempDir.isValid()) {
+         qDebug() << tempDir.path();
+         foreach(const QString &file, files) {
+            separatedPDFFiles.append(ocrHandler.AddTextToPDF(file, tempDir.path() + QDir::separator() + QFileInfo(file).baseName()));
+            QMetaObject::invokeMethod(progressBar, "setValue", Q_ARG(int, ++currentFileProgress));
+         }
+      }
+
+      //unite the pages
+      tool.MergePDF(separatedPDFFiles, saveFileName, GetMetaData(tagList));
+      qDebug() << files;
+   } else {
+      qCritical() << "Could not separate pages. Aborting.";
+   }
+}
+
 void OptionDialog::on_writePDFButton_clicked()
 {
    QSettings settings;
@@ -246,25 +317,12 @@ void OptionDialog::on_writePDFButton_clicked()
          fileNames << InputList->item(i)->text();
       }
 
+
+      progressBar->setVisible(true);
+      progressBar->setValue(0);
+      QFuture<void> future = QtConcurrent::run(this, &OptionDialog::writeNewPDF, fileDialog.directory().absolutePath(), fileNames, saveFileName);
       //separate pages
-      PopplerTools tool;
-      QStringList files = tool.WriteToSeparatePages(fileNames, GetPageList(), fileDialog.directory().absolutePath());
-
-      //ocr
-      OcrHandler ocrHandler;
-      QTemporaryDir tempDir;
-      tempDir.setAutoRemove(!PMSettings::IsDebugEnabled());
-      QStringList separatedPDFFiles;
-      if (tempDir.isValid()) {
-         qDebug() << tempDir.path();
-         foreach(const QString &file, files) {
-            separatedPDFFiles.append(ocrHandler.AddTextToPDF(file, tempDir.path() + QDir::separator() + QFileInfo(file).baseName()));
-         }
-      }
-
-      //unite the pages
-      tool.MergePDF(separatedPDFFiles, saveFileName, GetMetaData(tagList));
-      qDebug() << files;
+//      writeNewPDF(fileDialog, fileNames, saveFileName);
    }
 }
 

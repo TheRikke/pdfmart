@@ -54,7 +54,7 @@ QVariant PDFPagesModel::headerData(int section, Qt::Orientation orientation, int
 }
 
 Qt::ItemFlags PDFPagesModel::flags(const QModelIndex &/*index*/) const {
-   return Qt::ItemIsSelectable | Qt::ItemIsEnabled |Qt::ItemIsDragEnabled;
+   return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDragEnabled;
 }
 
 QMimeData *PDFPagesModel::mimeData(const QModelIndexList &indexes) const {
@@ -62,7 +62,7 @@ QMimeData *PDFPagesModel::mimeData(const QModelIndexList &indexes) const {
    QDataStream stream(&encoded, QIODevice::WriteOnly);
    for (int i = 0; i < indexes.count(); ++i) {
       const QModelIndex& modelIndex = indexes.at(i);
-      stream << modelIndex.row() << modelIndex.column();
+      stream << modelIndex.row() << modelIndex.column() << (int)-1;
    }
 
    QMimeData *pdfMimeData = new QMimeData();

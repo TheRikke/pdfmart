@@ -35,6 +35,7 @@ class PDFMergeModel : public QAbstractTableModel {
  private:
    QVector<Poppler::Document*> documents_;
    PageList pageList_;
+   QMimeData *mimeData(const QModelIndexList &indexes) const;
 };
 
 #endif // PDF_MERGE_MODEL_H

@@ -55,13 +55,15 @@ int main(int argc, char *argv[])
    parser.addOption(debugFlag);
    QCommandLineOption logFileFlag(QStringList() << "l" << "logfile", "Output infos and logs to logfile.");
    parser.addOption(logFileFlag);
+   QCommandLineOption noconversionFlag(QStringList() << "n" << "no-conversion", "Disable workaround for tesseract bug and skip some image conversion.");
+   parser.addOption(noconversionFlag);
    parser.process(app);
 
    if(parser.isSet("logfile")) {
       qInstallMessageHandler(myMessageHandler);
    }
 
-   PMSettings settings(parser.isSet("debug"));
+   PMSettings settings(parser.isSet("debug"), parser.isSet("no-conversion"));
    OptionDialog dialog(&app);
 
    QStringList args = parser.positionalArguments();
