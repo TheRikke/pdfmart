@@ -3,5 +3,6 @@
         <file alias="tests/scan_eng.pdf">tests/English_Text.pdf</file>
         <file alias="tests/scan_deu.pdf">tests/German_Text-Sophie Albrecht-Das_hoefliche_Gespenst.pdf</file>
         <file alias="tests/text_deu.txt">tests/German_Text-Sophie Albrecht-Das_hoefliche_Gespenst.txt</file>
+        <file alias="tests/text_eng.txt">tests/English_Text.txt</file>
     </qresource>
 </RCC>

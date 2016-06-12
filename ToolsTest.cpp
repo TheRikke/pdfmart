@@ -98,21 +98,24 @@ int ToolsTest::Test() {
       exitCode = 1;
    }
 
-   if((exitCode == 0) && popplerTools.HasFoundPDFImagesExec() &&
-      popplerTools.HasFoundPDFUniteExec()) {
-      QFile testFile( QString(":/tests/scan_%1.pdf").arg(QSettings().value("Ocr/language",
-                                                                           "deu").toString()));
+   if((exitCode == 0) && popplerTools.HasFoundPDFImagesExec() && popplerTools.HasFoundPDFUniteExec()) {
+      QString language(QSettings().value("Ocr/language", "deu").toString());
+      QFile testFile( QString(":/tests/scan_%1.pdf").arg(language));
       QString testFileExtracted = tempDir.path().append("/testFile.pdf");
       if(!testFile.exists()) {
-         qDebug() << "Missing resource " << testFile.fileName();
-         exitCode = 1;
+         qDebug() << "could not find language specific test files for '" << language << "'. Try switching to english test.";
+         testFile.setFileName(":/tests/scan_eng.pdf");
+         language = "eng";
+         if(!testFile.exists()) {
+            qDebug() << "Missing resource " << testFile.fileName();
+            exitCode = 1;
+         }
       } else if(testFile.copy(testFileExtracted)) {
          exitCode = 1;
 
          QStringList pageImages = popplerTools.WriteToSeparatePages(
-            QStringList() << testFileExtracted, PageList() << PageEntry(0,0) << PageEntry(0,
-                                                                                          1),
-            tempDir.path());
+                  QStringList() << testFileExtracted,
+                  PageList() << PageEntry(0,0) << PageEntry(0, 1), tempDir.path());
          if(pageImages.size() == 2) {
             OcrHandler ocrHandler;
             QStringList separatedPDFFilesWithText;

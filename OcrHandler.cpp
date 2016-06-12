@@ -9,15 +9,13 @@ namespace {
    const char* TESSERACT_NAMES[] = { "tesseract", "tesseract.exe", "C:/Program Files (x86)/Tesseract-OCR/tesseract.exe", NULL };
 }
 
-
 bool FindTesseract(QProcess &tesseractProcess) {
    int index = 0;
    bool foundTesseract = false;
-   tesseractProcess.setArguments(QStringList("--help"));
    while(TESSERACT_NAMES[index] != 0) {
       QString command(TESSERACT_NAMES[index]);
       tesseractProcess.setProgram(command);
-      tesseractProcess.start(command, QStringList("--help"));
+      tesseractProcess.start(command, QStringList("--version"));
       tesseractProcess.waitForFinished(-1);
       QByteArray procOutput = tesseractProcess.readAllStandardError();
       Logger::Log(tesseractProcess, procOutput);
@@ -63,4 +61,3 @@ bool OcrHandler::IsReady() const
 {
    return IsTesseractReady;
 }
-

@@ -13,7 +13,7 @@ namespace {
 bool FindPDFImages(QProcess &pdfimagesProcess, const char* imageNames[]) {
    int index = 0;
    bool foundPdfImages = false;
-   pdfimagesProcess.setArguments(QStringList("--help"));
+   pdfimagesProcess.setArguments(QStringList("--version"));
    while(imageNames[index] != 0) {
       pdfimagesProcess.setProgram(imageNames[index]);
       pdfimagesProcess.start();
