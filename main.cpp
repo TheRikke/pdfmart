@@ -1,8 +1,10 @@
 #include "OptionDialog.h"
 #include "MergePDF.h"
-
+#include "PopplerTools.h"
+#include "ToolsTest.h"
 #include "PMSettings.h"
 #include "OcrHandler.h"
+#include "Logger.h"
 #include <QApplication>
 #include <QCommandLineParser>
 #include <QSettings>
@@ -57,13 +59,22 @@ int main(int argc, char *argv[])
    parser.addOption(logFileFlag);
    QCommandLineOption noconversionFlag(QStringList() << "n" << "no-conversion", "Disable workaround for tesseract bug and skip some image conversion.");
    parser.addOption(noconversionFlag);
+   QCommandLineOption testFlag(QStringList() << "t" << "test-external-tools", "Validate external tools can be found and behave as expected");
+   parser.addOption(testFlag);
    parser.process(app);
 
+   Logger::SetLogLevel(parser.isSet("debug") ? Logger::INFO : Logger::WARNING);
+   Logger::Log(Logger::INFO, QString("Settings read from ") + QSettings().fileName());
    if(parser.isSet("logfile")) {
       qInstallMessageHandler(myMessageHandler);
    }
 
    PMSettings settings(parser.isSet("debug"), parser.isSet("no-conversion"));
+   if(parser.isSet("test-external-tools")) {
+      ToolsTest test;
+      exit(test.Test());
+   }
+
    OptionDialog dialog(&app);
 
    QStringList args = parser.positionalArguments();

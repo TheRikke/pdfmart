@@ -4,6 +4,7 @@ cmake_policy(SET CMP0020 NEW)
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake)
 
 find_package(Qt5Widgets REQUIRED)
@@ -33,6 +34,11 @@ set(SRC_LIST
    PMSettings.cpp
    OcrHandler.h
    OcrHandler.cpp
+   ToolsTest.h
+   ToolsTest.cpp
+   testfiles.qrc
+   Logger.cpp
+   Logger.h
    )
 add_executable(${PROJECT_NAME} WIN32 ${SRC_LIST} ${UIS_HDRS} )
 

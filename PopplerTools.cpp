@@ -1,13 +1,14 @@
 #include "PopplerTools.h"
 #include "PMSettings.h"
+#include "Logger.h"
 
 #include <QDebug>
 
 namespace {
    const char* PDFIMAGES_NAMES[] = { "pdfimages", "pdfimages.exe", NULL };
    const char* PDFUNITE_NAMES[] = { "pdfunite", "pdfunite.exe", NULL };
+   const char* PDFTOTEXT_NAMES[] = { "pdftotext", "pdftotext.exe", NULL };
 }
-
 
 bool FindPDFImages(QProcess &pdfimagesProcess, const char* imageNames[]) {
    int index = 0;
@@ -34,15 +35,17 @@ bool FindPDFImages(QProcess &pdfimagesProcess, const char* imageNames[]) {
 PopplerTools::PopplerTools()
 {
    TempDir.setAutoRemove(!PMSettings::IsDebugEnabled());
-   FindPDFImages(PDFImageProcess, PDFIMAGES_NAMES);
-   FindPDFImages(PDFUniteProcess, PDFUNITE_NAMES);
+   FoundPDFImagesExec = FindPDFImages(PDFImageProcess, PDFIMAGES_NAMES);
+   FoundPDFUniteExec = FindPDFImages(PDFUniteProcess, PDFUNITE_NAMES);
+   FoundPDFToTextExec = FindPDFImages(PDFToTextProcess, PDFTOTEXT_NAMES);
 }
 
 void PopplerTools::Merge(const QStringList &/*inputFiles*/, const PageList &/*pageList*/, const QString &/*outputFile*/, const MetaDataList &/*meta_data_list*/)
 {
+   abort(); // not implemented
 }
 
-void PopplerTools::MergePDF(const QStringList &inputFiles, const QString &outputFile, const MetaDataList &meta_data_list)
+void PopplerTools::MergePDF(const QStringList &inputFiles, const QString &outputFile, const MetaDataList &/*meta_data_list*/)
 {
    QStringList arguments;
    arguments.append(inputFiles);
@@ -50,8 +53,7 @@ void PopplerTools::MergePDF(const QStringList &inputFiles, const QString &output
    PDFUniteProcess.setArguments(arguments);
    PDFUniteProcess.start();
    PDFUniteProcess.waitForFinished();
-
-   qDebug() << "output: " << PDFUniteProcess.readAllStandardOutput() << PDFUniteProcess.errorString() << PDFUniteProcess.readAllStandardError();
+   Logger::Log(PDFUniteProcess);
  }
 
 QStringList PopplerTools::WriteToSeparatePages(const QStringList &inputFiles, const PageList &pageList, const QString &outputPath)
@@ -81,7 +83,7 @@ QStringList PopplerTools::WriteToSeparatePages(const QStringList &inputFiles, co
       PDFImageProcess.setArguments(arguments);
       PDFImageProcess.start();
       PDFImageProcess.waitForFinished();
-
+      Logger::Log(PDFImageProcess);
       // correct the filename. pdfimages does not tell us how the file will be called
       QFileInfo fileTofind(outputFile);
       if (!fileTofind.exists()) {
@@ -105,4 +107,42 @@ QStringList PopplerTools::WriteToSeparatePages(const QStringList &inputFiles, co
    }
 
    return outputFiles;
+}
+
+QString PopplerTools::ReadText(QFile &file)
+{
+   QTemporaryDir tempDir;
+   QFile outputFile(tempDir.path() + "/text_file.txt");
+   QString resultText;
+   if(FoundPDFToTextExec) {
+      PDFToTextProcess.setArguments( QStringList() << file.fileName() << outputFile.fileName());
+      PDFToTextProcess.start();
+      PDFToTextProcess.waitForFinished();
+      Logger::Log(PDFToTextProcess);
+      if(outputFile.exists()) {
+         outputFile.open(QIODevice::ReadOnly);
+         resultText = QString(outputFile.readAll());
+      } else {
+         Logger::Log(Logger::ERROR, "could not read textfile: " + outputFile.fileName() );
+      }
+
+   } else {
+      Logger::Log(Logger::ERROR, "pdftotext not found. No text extraction from PDF possible");
+   }
+   return resultText;
+}
+
+bool PopplerTools::HasFoundPDFImagesExec() const
+{
+   return FoundPDFImagesExec;
+}
+
+bool PopplerTools::HasFoundPDFUniteExec() const
+{
+   return FoundPDFUniteExec;
+}
+
+bool PopplerTools::HasFoundPDFToTextExec() const
+{
+   return FoundPDFToTextExec;
 }

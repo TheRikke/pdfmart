@@ -1,4 +1,5 @@
 #include "OcrHandler.h"
+#include "Logger.h"
 
 #include <QDebug>
 #include <QSettings>
@@ -15,23 +16,17 @@ bool FindTesseract(QProcess &tesseractProcess) {
    tesseractProcess.setArguments(QStringList("--help"));
    while(TESSERACT_NAMES[index] != 0) {
       QString command(TESSERACT_NAMES[index]);
-      if(!QFile::exists(command))
-      {
-         qWarning() << "Damn, not found yet: " << command;
-      }
-//      tesseractProcess.execute(command, QStringList("--help"));
-//      tesseractProcess.setWorkingDirectory("C:/Program Files (x86)/Tesseract-OCR/");
       tesseractProcess.setProgram(command);
       tesseractProcess.start(command, QStringList("--help"));
       tesseractProcess.waitForFinished(-1);
       QByteArray procOutput = tesseractProcess.readAllStandardError();
-      qDebug() << "output: " << procOutput << tesseractProcess.errorString();// << tesseractProcess.readAllStandardError();
+      Logger::Log(tesseractProcess, procOutput);
       if(tesseractProcess.error() == QProcess::UnknownError && procOutput.size() > 0) {
          foundTesseract = true;
          qDebug() << "Found " << TESSERACT_NAMES[index];
          break;
       }
-      qDebug() << "Tesseract executable not found" << TESSERACT_NAMES[index];
+      qDebug() << "Tesseract executable not found yet: " << TESSERACT_NAMES[index];
       index++;
    }
    if(!foundTesseract) {
@@ -59,10 +54,7 @@ QString OcrHandler::AddTextToPDF(const QString &pdfInputName, const QString &pdf
    TesseractProcess.start();
    TesseractProcess.waitForFinished(-1);
 
-   if(TesseractProcess.exitStatus() != 0) {
-      qWarning() << "Tesseract error: " << QString(TesseractProcess.readAll());
-   }
-   qDebug() << "TesseractLog: " << TesseractProcess.state() << QString(TesseractProcess.readAllStandardOutput()).replace('\r',"") << QString(TesseractProcess.readAllStandardError()).replace('\r',"") << QString("'").append(TesseractProcess.arguments().join("' '")).append("'");
+   Logger::Log(TesseractProcess);
 
    return pdfOutputName + ".pdf";
 }
