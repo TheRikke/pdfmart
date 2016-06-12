@@ -72,7 +72,6 @@ QMimeData *PDFPagesModel::mimeData(const QModelIndexList &indexes) const {
 
 bool PDFPagesModel::event(QEvent *qEvent) {
    if (qEvent->type() == QEvent::DynamicPropertyChange) {
-//      QDynamicPropertyChangeEvent* propertyEvent = static_cast<QDynamicPropertyChangeEvent*>(qEvent);
       documents_ = property("SourceDocuments").value< QVector<Poppler::Document*> >();
       columnCount_ = 0;
       foreach(Poppler::Document *document, documents_) {
@@ -82,13 +81,19 @@ bool PDFPagesModel::event(QEvent *qEvent) {
          }
       }
 
-//      for(int column = 0; column < columnCount_; ++column) {
-//         setHeaderData(column, Qt::Vertical, tr("Page"));
-//         setHeaderData(column, Qt::Horizontal, tr("Page"));
-//      }
       emit layoutChanged();
-
       return true;
    }
    return false;
+}
+
+Qt::DropActions PDFPagesModel::supportedDropActions() const
+{
+   return Qt::CopyAction |  Qt::MoveAction;
+}
+
+
+Qt::DropActions PDFPagesModel::supportedDragActions() const
+{
+   return Qt::CopyAction |  Qt::MoveAction;
 }

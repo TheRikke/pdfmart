@@ -36,6 +36,7 @@ OptionDialog::OptionDialog(QObject */*parent*/)
    connect (pdfPages->horizontalHeader(), SIGNAL(sectionResized(int,int,int)), this, SLOT(OnColumnResized(int, int, int)));
    connect (mergedView->horizontalHeader(), SIGNAL(sectionResized(int,int,int)), this, SLOT(OnMergedViewColumnResized(int, int, int)));
    connect (mergedView->horizontalHeader(), SIGNAL(sectionCountChanged(int,int)), SLOT(OnColumnCountChanged(int,int)));
+   connect (dockWidget, SIGNAL(topLevelChanged(bool)), SLOT(OnDockedChanged(bool)));
 
    mergedView->setItemDelegate(new PDFPageItemDelegate(this));
    mergedView->setModel(new PDFMergeModel(this));
@@ -137,6 +138,16 @@ void OptionDialog::OnColumnCountChanged(int oldSize, int newSize) {
    if(oldSize > 0 && newSize > 0) {
       int columnSize = mergedView->columnWidth(0);
       OnMergedViewColumnResized(0, columnSize, columnSize);
+   }
+}
+
+void OptionDialog::OnDockedChanged(bool unDocked)
+{
+   if(unDocked) {
+      DockedSplitterSizes = splitter->sizes();
+      splitter->setSizes(QList<int>() <<  DockedSplitterSizes.at(0) + DockedSplitterSizes.at(1) << 0);
+   } else {
+      splitter->setSizes(DockedSplitterSizes);
    }
 }
 

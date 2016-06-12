@@ -27,6 +27,7 @@ public slots:
 
    void OnMergedViewColumnResized(int, int oldSize, int newSize);
    void OnColumnCountChanged(int, int);
+   void OnDockedChanged(bool);
 
  private slots:
    void on_duplexButton_clicked();
@@ -45,6 +46,8 @@ private:
    bool DebugEnabled;
 
    void writeNewPDF(const QString &directory, QStringList fileNames, QString saveFileName);
+
+   QList<int> DockedSplitterSizes;
 
 protected:
    void closeEvent(QCloseEvent *);

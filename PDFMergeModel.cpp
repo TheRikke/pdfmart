@@ -98,7 +98,7 @@ void fixList(QList<int>& list, int index) {
 }
 
 
-bool PDFMergeModel::dropMimeData(const QMimeData *data, Qt::DropAction /*action*/, int row, int column, const QModelIndex &parent) {
+bool PDFMergeModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) {
    QStringList formats = data->formats();
    QByteArray encodedData = data->data(formats[0]);
    QDataStream stream(&encodedData, QIODevice::ReadOnly);
@@ -131,6 +131,9 @@ bool PDFMergeModel::dropMimeData(const QMimeData *data, Qt::DropAction /*action*
    insertColumns(beginColumn, pageList.count(), QModelIndex());
    foreach(PageEntry entry, pageList) {
       pageList_.insert(beginColumn++, entry);
+      if(action & Qt::MoveAction) {
+         emit HidePage(entry);
+      }
    }
    emit layoutChanged();
    return true;
@@ -154,4 +157,15 @@ QMimeData *PDFMergeModel::mimeData(const QModelIndexList &indexes) const {
    QMimeData *pdfMimeData = new QMimeData();
    pdfMimeData->setData("application/x-pdfmart-pdfpages", encoded);
    return pdfMimeData;
+}
+
+Qt::DropActions PDFMergeModel::supportedDropActions() const
+{
+   return Qt::CopyAction |  Qt::MoveAction;
+}
+
+
+Qt::DropActions PDFMergeModel::supportedDragActions() const
+{
+   return Qt::CopyAction |  Qt::MoveAction;
 }

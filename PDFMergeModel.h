@@ -32,10 +32,15 @@ class PDFMergeModel : public QAbstractTableModel {
 
    virtual QStringList mimeTypes() const;
 
+   signals:
+   void HidePage(const PageEntry&);
+
  private:
    QVector<Poppler::Document*> documents_;
    PageList pageList_;
    QMimeData *mimeData(const QModelIndexList &indexes) const;
+   Qt::DropActions supportedDropActions() const;
+   Qt::DropActions supportedDragActions() const;
 };
 
 #endif // PDF_MERGE_MODEL_H

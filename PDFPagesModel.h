@@ -29,6 +29,9 @@ class PDFPagesModel : public QAbstractTableModel {
  private:
    QVector<Poppler::Document*> documents_;
    int columnCount_;
+
+   Qt::DropActions supportedDropActions() const;
+   Qt::DropActions supportedDragActions() const;
 };
 
 #endif // PDFPAGESMODEL_H
