@@ -19,6 +19,7 @@
 #include <QImageReader>
 #include <QFuture>
 #include <QtConcurrent/QtConcurrent>
+#include <QShortcut>
 
 Q_DECLARE_METATYPE(Poppler::Document*)
 
@@ -40,10 +41,14 @@ OptionDialog::OptionDialog(QObject */*parent*/)
 
    mergedView->setItemDelegate(new PDFPageItemDelegate(this));
    mergedView->setModel(new PDFMergeModel(this));
+   connect (mergedView->model(), SIGNAL(columnsInserted(QModelIndex,int,int)), SLOT(OnAddedPageToMergeView(QModelIndex,int,int)));
 
    pdfPages->setItemDelegate(new PDFPageItemDelegate(this));
    pdfPages->setModel(new PDFPagesModel(this));
    progressBar->setVisible(false);
+
+   connect(new QShortcut(QKeySequence(QKeySequence::ZoomIn), this), SIGNAL(activated()), this, SLOT(OnScaleUp()));
+   connect(new QShortcut(QKeySequence(QKeySequence::ZoomOut), this), SIGNAL(activated()), this, SLOT(OnScaleDown()));
 }
 
 PageList OptionDialog::GetPageList() const {
@@ -74,8 +79,11 @@ void OptionDialog::LoadPDFs() {
    docs.setValue<PopplerDocumentList>(documents);
    pdfPages->model()->setProperty("SourceDocuments", docs);
    mergedView->model()->setProperty("SourceDocuments", docs);
+   pdfPages->model()->setProperty("SizeHint", QSize(400,400));
+   mergedView->model()->setProperty("SizeHint", QSize(400,400));
    pdfPages->resizeRowsToContents();
    pdfPages->resizeColumnsToContents();
+   mergedView->resizeColumnsToContents();
 }
 
 void OptionDialog::OnColumnResized(int /*logicalIndex*/, int /*oldSize*/, int newSize) {
@@ -141,6 +149,36 @@ void OptionDialog::OnColumnCountChanged(int oldSize, int newSize) {
    }
 }
 
+void OptionDialog::ScaleFocusTable(float scale)
+{
+   QWidget* widget = QApplication::focusWidget();
+   Q_ASSERT(widget != NULL);
+   QWidget* focus = widget->focusWidget();
+   QTableView* view = NULL;
+   while(focus  && !(view = qobject_cast<QTableView*>(focus))) {
+      focus = focus->parentWidget();
+   }
+
+   if(view) {
+      QSize size = view->model()->property("SizeHint").toSize();
+      size *= scale;
+      view->model()->setProperty("SizeHint", size);
+      view->resizeRowsToContents();
+      view->resizeColumnsToContents();
+   }
+}
+
+void OptionDialog::OnScaleUp() {
+   qDebug() << "ScaleUp";
+   ScaleFocusTable(1.1);
+}
+
+void OptionDialog::OnScaleDown() {
+   qDebug() << "ScaleDown";
+   ScaleFocusTable(0.9);
+}
+
+
 void OptionDialog::OnDockedChanged(bool unDocked)
 {
    if(unDocked) {
@@ -148,6 +186,15 @@ void OptionDialog::OnDockedChanged(bool unDocked)
       splitter->setSizes(QList<int>() <<  DockedSplitterSizes.at(0) + DockedSplitterSizes.at(1) << 0);
    } else {
       splitter->setSizes(DockedSplitterSizes);
+   }
+}
+
+void OptionDialog::OnAddedPageToMergeView(QModelIndex index, int first, int last)
+{
+   qDebug() << "OnAddedPageToMergeView" << index << first << last;
+   if(first == 0 || last == 0) {
+      mergedView->resizeColumnsToContents();
+      mergedView->resizeRowsToContents();
    }
 }
 
@@ -328,12 +375,9 @@ void OptionDialog::on_writePDFButton_clicked()
          fileNames << InputList->item(i)->text();
       }
 
-
       progressBar->setVisible(true);
       progressBar->setValue(0);
       QFuture<void> future = QtConcurrent::run(this, &OptionDialog::writeNewPDF, fileDialog.directory().absolutePath(), fileNames, saveFileName);
-      //separate pages
-//      writeNewPDF(fileDialog, fileNames, saveFileName);
    }
 }
 

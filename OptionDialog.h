@@ -20,14 +20,16 @@ public:
    void AddInputFiles(const QStringList &fileNames);
    void SetDebug(bool);
    typedef QVector<Poppler::Document*> PopplerDocumentList;
-signals:
 
 public slots:
    void OnColumnResized(int logicalIndex, int oldSize, int newSize);
 
    void OnMergedViewColumnResized(int, int oldSize, int newSize);
    void OnColumnCountChanged(int, int);
+   void OnScaleUp();
+   void OnScaleDown();
    void OnDockedChanged(bool);
+   void OnAddedPageToMergeView(QModelIndex,int,int);
 
  private slots:
    void on_duplexButton_clicked();
@@ -42,6 +44,7 @@ public slots:
 
 private:
    void LoadPDFs();
+   void ScaleFocusTable(float scale);
    bool eventFilter(QObject *object, QEvent *event);
    bool DebugEnabled;
 

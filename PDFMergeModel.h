@@ -23,6 +23,7 @@ class PDFMergeModel : public QAbstractTableModel {
    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+   bool insertColumns(int column, int count, const QModelIndex &parent);
    bool removeColumns(int column, int count, const QModelIndex &parent = QModelIndex());
 
    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
@@ -41,6 +42,7 @@ class PDFMergeModel : public QAbstractTableModel {
    QMimeData *mimeData(const QModelIndexList &indexes) const;
    Qt::DropActions supportedDropActions() const;
    Qt::DropActions supportedDragActions() const;
+
 };
 
 #endif // PDF_MERGE_MODEL_H

@@ -57,8 +57,10 @@ void PDFPageItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
 QSize PDFPageItemDelegate::sizeHint(const QStyleOptionViewItem &/*option*/, const QModelIndex &index) const {
    QSize result;
    if(index.isValid()) {
-      QVector<Poppler::Document*> documents = index.model()->property("SourceDocuments").value< QVector<Poppler::Document*> >();
-      result = documents.at(index.row())->page(0)->pageSize();
+      result = index.model()->property("SizeHint").value< QSize>();
+      qDebug() << "Size hint " << result;
+   } else {
+      qDebug() << "Invalid index";
    }
    return result;
 }

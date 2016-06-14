@@ -75,6 +75,16 @@ QVariant PDFMergeModel::headerData(int section, Qt::Orientation orientation, int
    return result;
 }
 
+
+bool PDFMergeModel::insertColumns(int column, int count, const QModelIndex &parent)
+{
+   qDebug() << "insertColumns" << column << count <<  column + count - 1;
+   beginInsertColumns(parent, column,  column + count - 1);
+   pageList_.insert(column, count, PageEntry());
+   endInsertColumns();
+   return true;
+}
+
 bool PDFMergeModel::removeColumns(int column, int count, const QModelIndex &parent) {
    qDebug() << column << count <<  column + count - 1;
    if(count>0) {
@@ -113,9 +123,10 @@ bool PDFMergeModel::dropMimeData(const QMimeData *data, Qt::DropAction action, i
          removeList.append(origin_list);
       }
    }
-
+   qDebug() << "RemoveList: " << removeList << ", InsertAt: " << column << "InsertList: " << pageList << parent.isValid() << parent.column() <<  columnCount(QModelIndex());
    while(!removeList.isEmpty()) {
       int pageIndex = removeList.takeLast();
+      //removeColumns(pageIndex, 1);
       pageList_.remove(pageIndex);
       fixList(removeList, pageIndex);
    }
@@ -128,14 +139,14 @@ bool PDFMergeModel::dropMimeData(const QMimeData *data, Qt::DropAction action, i
    else
       beginColumn = columnCount(QModelIndex());
 
-   insertColumns(beginColumn, pageList.count(), QModelIndex());
+   beginInsertColumns(parent, beginColumn,  beginColumn + pageList.count() - 1);
    foreach(PageEntry entry, pageList) {
       pageList_.insert(beginColumn++, entry);
       if(action & Qt::MoveAction) {
          emit HidePage(entry);
       }
    }
-   emit layoutChanged();
+   endInsertColumns();
    return true;
 }
 
