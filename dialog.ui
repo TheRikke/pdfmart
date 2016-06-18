@@ -84,7 +84,7 @@
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
-     <widget class="QTableView" name="pdfPages">
+     <widget class="ZoomablePageView" name="pdfPages">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -122,6 +122,9 @@
          </property>
          <property name="features">
           <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable|QDockWidget::DockWidgetVerticalTitleBar</set>
+         </property>
+         <property name="windowTitle">
+          <string>O&amp;utput Pages</string>
          </property>
          <widget class="QWidget" name="dockWidgetContents">
           <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -169,7 +172,7 @@
                </property>
               </item>
              </widget>
-             <widget class="QTableView" name="mergedView">
+             <widget class="ZoomablePageView" name="mergedView">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                 <horstretch>2</horstretch>
@@ -253,6 +256,13 @@
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ZoomablePageView</class>
+   <extends>QTableView</extends>
+   <header>zoomablepageview.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

@@ -13,7 +13,7 @@
 Q_DECLARE_METATYPE(Poppler::Document*)
 
 namespace {
-const int MAX_CACHED_IMAGES = 500;
+   const int MAX_CACHED_IMAGES = 500;
 }
 
 PDFPageItemDelegate::PDFPageItemDelegate(QObject *parent)

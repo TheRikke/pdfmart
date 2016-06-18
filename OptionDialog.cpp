@@ -39,6 +39,12 @@ OptionDialog::OptionDialog(QObject */*parent*/)
    connect (mergedView->horizontalHeader(), SIGNAL(sectionCountChanged(int,int)), SLOT(OnColumnCountChanged(int,int)));
    connect (dockWidget, SIGNAL(topLevelChanged(bool)), SLOT(OnDockedChanged(bool)));
 
+   connect (pdfPages, SIGNAL(ZoomIn()), SLOT(OnScaleDown()));
+   connect (pdfPages, SIGNAL(ZoomOut()), SLOT(OnScaleUp()));
+
+   connect (mergedView, SIGNAL(ZoomIn()), SLOT(OnScaleDown()));
+   connect (mergedView, SIGNAL(ZoomOut()), SLOT(OnScaleUp()));
+
    mergedView->setItemDelegate(new PDFPageItemDelegate(this));
    mergedView->setModel(new PDFMergeModel(this));
    connect (mergedView->model(), SIGNAL(columnsInserted(QModelIndex,int,int)), SLOT(OnAddedPageToMergeView(QModelIndex,int,int)));
@@ -46,9 +52,6 @@ OptionDialog::OptionDialog(QObject */*parent*/)
    pdfPages->setItemDelegate(new PDFPageItemDelegate(this));
    pdfPages->setModel(new PDFPagesModel(this));
    progressBar->setVisible(false);
-
-   connect(new QShortcut(QKeySequence(QKeySequence::ZoomIn), this), SIGNAL(activated()), this, SLOT(OnScaleUp()));
-   connect(new QShortcut(QKeySequence(QKeySequence::ZoomOut), this), SIGNAL(activated()), this, SLOT(OnScaleDown()));
 }
 
 PageList OptionDialog::GetPageList() const {
@@ -152,19 +155,23 @@ void OptionDialog::OnColumnCountChanged(int oldSize, int newSize) {
 void OptionDialog::ScaleFocusTable(float scale)
 {
    QWidget* widget = QApplication::focusWidget();
-   Q_ASSERT(widget != NULL);
-   QWidget* focus = widget->focusWidget();
-   QTableView* view = NULL;
-   while(focus  && !(view = qobject_cast<QTableView*>(focus))) {
-      focus = focus->parentWidget();
+   if(!widget) {
+      widget = qobject_cast<QWidget*>(sender());
    }
+   if(widget) {
+      QWidget* focus = widget->focusWidget();
+      QTableView* view = NULL;
+      while(focus  && !(view = qobject_cast<QTableView*>(focus))) {
+         focus = focus->parentWidget();
+      }
 
-   if(view) {
-      QSize size = view->model()->property("SizeHint").toSize();
-      size *= scale;
-      view->model()->setProperty("SizeHint", size);
-      view->resizeRowsToContents();
-      view->resizeColumnsToContents();
+      if(view) {
+         QSize size = view->model()->property("SizeHint").toSize();
+         size *= scale;
+         view->model()->setProperty("SizeHint", size);
+         view->resizeRowsToContents();
+         view->resizeColumnsToContents();
+      }
    }
 }
 

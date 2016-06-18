@@ -39,6 +39,8 @@ set(SRC_LIST
    testfiles.qrc
    Logger.cpp
    Logger.h
+   zoomablepageview.h
+   zoomablepageview.cpp
    )
 add_executable(${PROJECT_NAME} WIN32 ${SRC_LIST} ${UIS_HDRS} )
 
