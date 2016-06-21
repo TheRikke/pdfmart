@@ -19,25 +19,19 @@
   <property name="windowTitle">
    <string>PDF Merge And Rearrange Tool</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout_5">
    <item>
-    <layout class="QFormLayout" name="formLayout">
-     <property name="sizeConstraint">
-      <enum>QLayout::SetMinimumSize</enum>
-     </property>
-     <property name="fieldGrowthPolicy">
-      <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-     </property>
-     <property name="horizontalSpacing">
-      <number>0</number>
-     </property>
-     <property name="verticalSpacing">
-      <number>0</number>
-     </property>
-     <item row="2" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
         <widget class="QPushButton" name="addInput">
+         <property name="toolTip">
+          <string>Open and add a new PDF document</string>
+         </property>
+         <property name="whatsThis">
+          <string comment="Open and add a new PDF document"/>
+         </property>
          <property name="text">
           <string>Add ...</string>
          </property>
@@ -45,14 +39,41 @@
        </item>
        <item>
         <widget class="QPushButton" name="removeInput">
+         <property name="toolTip">
+          <string>Remove the currently selected document</string>
+         </property>
          <property name="text">
-          <string>Del</string>
+          <string>Remove</string>
          </property>
         </widget>
        </item>
       </layout>
      </item>
-     <item row="2" column="1">
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QPushButton" name="duplexButton">
+         <property name="toolTip">
+          <string>Merge two documents, where the first document contains the front pages and the second contains the back pages in reverse order. </string>
+         </property>
+         <property name="text">
+          <string>Duplex Merge</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="appendAll">
+         <property name="toolTip">
+          <string>Just add all pages of all open documents to the output view.</string>
+         </property>
+         <property name="text">
+          <string>Append All</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
       <widget class="QListWidget" name="InputList">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -65,6 +86,9 @@
          <width>16777215</width>
          <height>50</height>
         </size>
+       </property>
+       <property name="toolTip">
+        <string>List of open documents. Use drag and drop to change order.</string>
        </property>
        <property name="dragEnabled">
         <bool>true</bool>
@@ -90,6 +114,12 @@
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
+      </property>
+      <property name="toolTip">
+       <string>Pages of all open PDF documents. One document per row. Zoom with ctrl+&lt;mouse wheel&gt; or ctrl++, ctrl+-</string>
+      </property>
+      <property name="whatsThis">
+       <string comment="Pages of all open PDF documents. One document per row. Zoom with ctrl+&lt;mouse wheel&gt; or ctrl++, ctrl+-"/>
       </property>
       <property name="editTriggers">
        <set>QAbstractItemView::AllEditTriggers</set>
@@ -140,6 +170,9 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Filled fields will add the matching tags to the ouput PDF.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
               <property name="rowCount">
                <number>2</number>
               </property>
@@ -179,6 +212,9 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="toolTip">
+               <string>Output pages. Just drag pages from the input pane to output.</string>
+              </property>
               <property name="dragEnabled">
                <bool>true</bool>
               </property>
@@ -214,20 +250,6 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QPushButton" name="duplexButton">
-       <property name="text">
-        <string>Duplex Merge</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="appendAll">
-       <property name="text">
-        <string>Append All</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QProgressBar" name="progressBar">
        <property name="enabled">
         <bool>true</bool>
@@ -239,6 +261,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="writePDFButton">
+       <property name="toolTip">
+        <string>Write the output pages to a PDF file.</string>
+       </property>
        <property name="text">
         <string>Write PDF ...</string>
        </property>
